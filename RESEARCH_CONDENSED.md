@@ -285,8 +285,13 @@ per day relative to their total noise level.**
 
 $$D_{i,t} = \frac{\mathcal{S}_{i,t} - \hat{\mu}_{i,t}}{\max(\sigma^{60}_{i,t}, \varepsilon)}$$
 
-The numerator $\mathcal{S}_{i,t} - \hat{\mu}_{i,t}$ is the **Kalman filter innovation** —
-the genuinely unexpected component of today's macro release.
+The numerator:
+
+$$
+\mathcal{S}_{i,t} - \hat{\mu}_{i,t}
+$$
+
+is the **Kalman filter innovation** — the genuinely unexpected component of today's macro release.
 
 *Non-mathematically: subtract what the market already priced in (the EMA), divide
 by the 60-day rolling standard deviation, and what remains is the pure surprise
@@ -766,7 +771,7 @@ session. The residual signal is then marked as $\gamma = 0.30$ until VIF normali
 |------|---------|-----------|
 | Surprise | $\Delta^k_i = (\text{actual}^k_i - \text{consensus}^k_i)/\sigma^k_{\text{hist}}$ | Normalised deviation from consensus |
 | Composite | $\mathcal{S}_i = 0.40\Delta\text{PMI} + 0.30\Delta\text{CPI} + 0.30\Delta\text{EMP}$ | Weighted macro surprise index |
-| EMA/Kalman | $`\hat{\mu}_t = \alpha\mathcal{S}_t + (1-\alpha)\hat{\mu}_{t-1}$, $\alpha=\frac{2}{(\tau+1)}`$ | Steady-state Kalman = optimal EMA |
+| EMA/Kalman | $`\hat{\mu}_t = \alpha\mathcal{S}_t + (1-\alpha)\hat{\mu}_{t-1} \quad \text{, } \alpha=\frac{2}{(\tau+1)}`$ | Steady-state Kalman = optimal EMA |
 | Divergence | $D_i = (\mathcal{S}_i - \hat{\mu}_i)/\max(\sigma^{60}_i, \varepsilon)$ | Innovation: genuinely unpriced surprise |
 
 ### Causal Framework
