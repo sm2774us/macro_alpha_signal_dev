@@ -790,7 +790,7 @@ MONTH 6 — PRODUCTION + ITERATION
 
 | Equation | Formula | Intuition |
 |----------|---------|-----------|
-| IC decay with crowding | $\dot{IC} = -\kappa\,IC - \delta\,C\,IC$ | Speed-to-market value |
+| IC decay with crowding | $`\dot{IC} = -\kappa, \quad IC - \delta, \quad C, \quad IC`$ | Speed-to-market value |
 | KPI score | $\text{Score} = \frac{w_1 \hat{IC} + w_2\sqrt{B} + w_3(1-\|\rho^{\max}\|)}{1 + w_4 C^{\text{data}} + w_5 K}$ | Multi-objective signal ranking |
 | IC pre-screen | $\|\widehat{IC}_f\| > 0.02,\ p < 0.10$ | Fast feature filter |
 
