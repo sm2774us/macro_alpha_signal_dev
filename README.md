@@ -6,6 +6,11 @@
 ---
 ---
 
+[![CI — HLS Alpha Engine (ISCF + MGD + Causal Stack)](https://github.com/sm2774us/macro_alpha_signal_dev/actions/workflows/ci.yml/badge.svg)](https://github.com/sm2774us/macro_alpha_signal_dev/actions/workflows/ci.yml)
+
+---
+---
+
 ## 📑 Table of Contents
 
 - [Synopsis](#synopsis)
