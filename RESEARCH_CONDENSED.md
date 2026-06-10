@@ -508,11 +508,11 @@ RETIREMENT DECISION TABLE
 
 $$\hat{\Sigma}^{\text{LW}} = (1 - \hat{\alpha}^{\*})\hat{\Sigma}^{\text{sample}} + \hat{\alpha}^{\*} \cdot \frac{\text{tr}(\hat{\Sigma})}{N} I$$
 
-*Non-mathematically: the sample covariance matrix from $T=252$ days and $N=50$ assets
+**Non-mathematically: the sample covariance matrix from $T=252$ days and $N=50$ assets
 has $N(N+1)/2 = 1275$ free parameters estimated from $252 \times 50 = 12{,}600$ data
 points — badly underdetermined. The extreme eigenvalues blow up ($\lambda_{\max} \approx 8$,
 $\lambda_{\min} \approx 0.02$), making the inverse numerically unstable. Ledoit-Wolf shrinks
-extremes toward the mean eigenvalue, analytically. No cross-validation, no hyperparameters.*
+extremes toward the mean eigenvalue, analytically. No cross-validation, no hyperparameters.**
 
 ### 5.2 — Hierarchical Risk Parity
 
@@ -532,16 +532,21 @@ mean return estimate — which is typically noisier than the covariance estimate
 
 $$\mu^{\text{BL}} = \left[(\tau\Sigma)^{-1} + P^T \Omega^{-1} P\right]^{-1} \left[(\tau\Sigma)^{-1}\Pi + P^T \Omega^{-1} q\right]$$
 
-where $\Omega^{-1} = \text{diag}(\text{DSR}_{\text{ISCF}}, \text{DSR}_{\text{MGD}}) \cdot \gamma$.
+where:
 
-*Non-mathematically: the DSR and $\gamma$ factor become the **confidence weights** on the
-signal views. A signal that barely passes the falsification protocol (DSR near 0.95, $\gamma = 0.30$)
-contributes its view very weakly. A well-validated signal ($\gamma = 0.95$, high DSR)
-strongly tilts the portfolio. Bayesian blending prevents over-reliance on any single signal.*
+$$
+\Omega^{-1} = \text{diag}(\text{DSR}_{\text{ISCF}}, \text{DSR}_{\text{MGD}}) \cdot \gamma
+$$
+
+**Non-mathematically: the DSR and $\gamma$ factor become the **confidence weights** on the
+signal views. A signal that barely passes the falsification protocol (DSR near 0.95, $\gamma = 0.30$) contributes its view very weakly. A well-validated signal ($\gamma = 0.95$, high DSR)
+strongly tilts the portfolio. Bayesian blending prevents over-reliance on any single signal.**
 
 ### 5.4 — Transaction Cost Model & Go/No-Go Gates
 
-$$\text{TC(bps)} = \frac{\text{spread}}{2} \cdot \Delta w \cdot 10^4 + \lambda_{\text{impact}} \cdot \sqrt{\frac{\Delta w}{\text{ADV}}}$$
+$$
+\text{TC(bps)} = \frac{\text{spread}}{2} \cdot \Delta w \cdot 10^4 + \lambda_{\text{impact}} \cdot \sqrt{\frac{\Delta w}{\text{ADV}}}
+$$
 
 Go/No-Go kill criteria (pre-agreed before live trading):
 
@@ -751,7 +756,7 @@ session. The residual signal is then marked as $\gamma = 0.30$ until VIF normali
 | No-arbitrage | $F(t,T) = S(t)\,e^{(r+u-c)(T-t)}$ | Futures = spot compounded at net carry |
 | Vol-norm basis | $b_i = (S_i - F^{\text{def}}_i) / \max(\sigma^{rv}_i, \varepsilon)$ | Puts all commodities on same risk-adj scale |
 | Robust z-score | $z_i = \text{clip}((b_i - \text{med})/(\text{MAD}+\varepsilon), -4, +4)$ | Outlier-resistant cross-section rank |
-| Idio extraction | $\alpha^{\text{raw}}_i = \text{sign}(z_i)\cdot|z_i|^{1/2}\cdot(1-\beta^{\text{macro}}_i)$ | Concave + idio; strips macro beta |
+| Idio extraction | $`\alpha^{\text{raw}}_i = \text{sign}(z_i)\cdot\\|z_i\\|^{1/2}\cdot(1-\beta^{\text{macro}}_i)`$ | Concave + idio; strips macro beta |
 | Gram-Schmidt | $\hat{\alpha}^{\text{ISCF}} = \alpha^{\text{raw}} - \sum_k \frac{\langle \alpha^{\text{raw}}, f^k\rangle}{\langle f^k, f^k\rangle}f^k$ | Residualise vs. trend/mom/carry |
 | Rank normalise | $r_i = \Phi^{-1}(\text{rank}(\hat{\alpha}_i)/(N+1))$ | Map to $\mathcal{N}(0,1)$ for optimiser |
 
@@ -761,7 +766,7 @@ session. The residual signal is then marked as $\gamma = 0.30$ until VIF normali
 |------|---------|-----------|
 | Surprise | $\Delta^k_i = (\text{actual}^k_i - \text{consensus}^k_i)/\sigma^k_{\text{hist}}$ | Normalised deviation from consensus |
 | Composite | $\mathcal{S}_i = 0.40\Delta\text{PMI} + 0.30\Delta\text{CPI} + 0.30\Delta\text{EMP}$ | Weighted macro surprise index |
-| EMA/Kalman | $\hat{\mu}_t = \alpha\mathcal{S}_t + (1-\alpha)\hat{\mu}_{t-1}$, $\alpha=2/(\tau+1)$ | Steady-state Kalman = optimal EMA |
+| EMA/Kalman | $`\hat{\mu}_t = \alpha\mathcal{S}_t + (1-\alpha)\hat{\mu}_{t-1}$, $\alpha=\frac{2}{(\tau+1)}`$ | Steady-state Kalman = optimal EMA |
 | Divergence | $D_i = (\mathcal{S}_i - \hat{\mu}_i)/\max(\sigma^{60}_i, \varepsilon)$ | Innovation: genuinely unpriced surprise |
 
 ### Causal Framework
@@ -770,8 +775,8 @@ session. The residual signal is then marked as $\gamma = 0.30$ until VIF normali
 |------|---------|----------------|
 | VARX Granger | $F = (RSS_R - RSS_U)/df_1 / \hat{\sigma}^2_{\text{HAC}}$ | $p < 0.05$ |
 | HAC bandwidth | $L = \lfloor 4(T/100)^{2/9}\rfloor$ | $L \approx 12$ for $T=1000$ |
-| CMI proxy | $\psi = \|\rho_{\text{partial}}\| / \|\rho_{\text{raw}}\|$ | $\psi \geq 0.50$ |
-| Placebo | $p_{\text{pl}} = B^{-1}\sum \mathbf{1}(\|\hat{\theta}_b\| \geq \|\hat{\theta}_{\text{orig}}\|)$ | $p_{\text{pl}} > 0.05$ |
+| CMI proxy | $`\psi = \\|\rho_{\text{partial}}\\| / \\|\rho_{\text{raw}}\\|`$ | $\psi \geq 0.50$ |
+| Placebo | $`p_{\text{pl}} = B^{-1}\sum \mathbf{1}(\\|\hat{\theta}_b\\| \geq \\|\hat{\theta}_{\text{orig}}\\|)`$ | $p_{\text{pl}} > 0.05$ |
 
 ### Statistical Validation
 
