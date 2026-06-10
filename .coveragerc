@@ -1,0 +1,20 @@
+[run]
+source = src/python/citadel_alpha
+branch = true
+omit =
+    */tests/*
+    */__pycache__/*
+    */cli.py
+
+[report]
+show_missing = true
+precision = 2
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if TYPE_CHECKING:
+    @overload
+
+[xml]
+output = coverage.xml

@@ -1,0 +1,61 @@
+version: "3.9"
+
+services:
+  alpha-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: citadel-alpha:latest
+    container_name: citadel_alpha_engine
+    command: ["citadel-alpha", "backtest", "--n-periods", "2000"]
+    volumes:
+      - ./plots:/app/plots
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    restart: "no"
+
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: citadel-alpha:latest
+    container_name: citadel_alpha_jupyter
+    command:
+      - "jupyter"
+      - "notebook"
+      - "--ip=0.0.0.0"
+      - "--port=8888"
+      - "--no-browser"
+      - "--NotebookApp.token=''"
+      - "--NotebookApp.password=''"
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app
+      - ./plots:/app/plots
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: "unless-stopped"
+
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: citadel-alpha:latest
+    container_name: citadel_alpha_tests
+    command:
+      - "python"
+      - "-m"
+      - "pytest"
+      - "tests/python/"
+      - "-v"
+      - "--tb=short"
+      - "-n"
+      - "auto"
+    volumes:
+      - .:/app
+    restart: "no"
