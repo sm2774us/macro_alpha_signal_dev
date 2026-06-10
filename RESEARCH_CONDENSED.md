@@ -397,7 +397,9 @@ distinguishable from noise at the 5% level.*
 
 ### Causal Confidence Factor γ
 
-$$\gamma = \begin{cases} 0.95 & \text{all 3 steps pass} \\ 0.30 & \text{Granger + CMI pass, policy fail} \\ 0.00 & \text{Granger fails OR placebo fails} \end{cases}$$
+$$\gamma = \begin{cases} 0.95 & \text{all 3 steps pass} \\
+0.30 & \text{Granger + CMI pass, policy fail} \\
+0.00 & \text{Granger fails OR placebo fails} \end{cases}$$
 
 Capital allocation: $w_i^{\text{target}} = \gamma \cdot w_i^{\text{HRP}}$
 
