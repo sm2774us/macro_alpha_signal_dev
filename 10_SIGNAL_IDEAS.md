@@ -5,26 +5,28 @@
 
 ---
 
-## Signal Overview Table
+## 📑 Signal Overview Table
 
 | # | Code | Universe | Mechanism | Orthogonality Basis |
 |---|------|----------|-----------|---------------------|
-| 1 | **CVRS** | Equity Index / FX Options | Conditional Variance Risk Premium surface skew residual | Targets vol surface shape, not roll or direction |
-| 2 | **XAFL** | G10 FX / Rates | Cross-asset funding liquidity stress index | TED/OIS basis orthogonal to carry level |
-| 3 | **CBOD** | Commodities / DM Equity | Central bank option-implied growth divergence | CB forward guidance surprise, not realised data surprise |
-| 4 | **RMVD** | Global Equity Index Futures | Realized minus implied vol term-structure divergence | Variance risk premium term structure, not spot RV level |
-| 5 | **XCOA** | G10 FX | Cross-currency order-flow adverse selection | Informed/uninformed decomposition, not price direction |
-| 6 | **EMCR** | EM vs DM Futures/FX | EM capital-flow regime classifier | HMM regime orthogonal to trend signal regime |
-| 7 | **NVIX** | Equity Index / Credit | News-sentiment VIX basis | NLP sentiment orthogonal to realized vol forecast |
-| 8 | **TXCA** | Rates / FX | Term-structure convexity arbitrage | Convexity bias in forward rates, not carry level |
-| 9 | **SADS** | Commodity Futures | Satellite-derived activity divergence score | Physical-world data orthogonal to price/roll signals |
-| 10 | **PCFD** | All Futures | Post-close flow discontinuity | Microstructure gaps uncorrelated with daily returns |
+| 1 | **[CVRS](#signal-1--cvrs-conditional-variance-risk-premium-surface-skew-residual)** | Equity Index / FX Options | Conditional Variance Risk Premium surface skew residual | Targets vol surface shape, not roll or direction |
+| 2 | **[XAFL](#signal-2--xafl-cross-asset-funding-liquidity-stress-index)** | G10 FX / Rates | Cross-asset funding liquidity stress index | TED/OIS basis orthogonal to carry level |
+| 3 | **[CBOD](#signal-3--cbod-central-bank-option-implied-growth-divergence)** | Commodities / DM Equity | Central bank option-implied growth divergence | CB forward guidance surprise, not realised data surprise |
+| 4 | **[RMVD](#signal-4--rmvd-realized-implied-vol-term-structure-divergence)** | Global Equity Index Futures | Realized minus implied vol term-structure divergence | Variance risk premium term structure, not spot RV level |
+| 5 | **[XCOA](#signal-5--xcoa-cross-currency-order-flow-adverse-selection)** | G10 FX | Cross-currency order-flow adverse selection | Informed/uninformed decomposition, not price direction |
+| 6 | **[EMCR](#signal-6--emcr-emerging-market-capital-flow-regime-classifier)** | EM vs DM Futures/FX | EM capital-flow regime classifier | HMM regime orthogonal to trend signal regime |
+| 7 | **[NVIX](#signal-7--nvix-news-sentiment-vix-basis)** | Equity Index / Credit | News-sentiment VIX basis | NLP sentiment orthogonal to realized vol forecast |
+| 8 | **[TXCA](#signal-8--txca-term-structure-convexity-arbitrage)** | Rates / FX | Term-structure convexity arbitrage | Convexity bias in forward rates, not carry level |
+| 9 | **[SADS](#signal-9--sads-satellite-derived-activity-divergence-score)** | Commodity Futures | Satellite-derived activity divergence score | Physical-world data orthogonal to price/roll signals |
+| 10 | **[PCFD](#signal-10--pcfd-post-close-flow-discontinuity)** | All Futures | Post-close flow discontinuity | Microstructure gaps uncorrelated with daily returns |
 
 ---
 
 ---
 
 ## Signal 1 — CVRS: Conditional Variance Risk Premium Surface Skew Residual
+
+[🔝 Back to Top](#-signal-overview-table)
 
 ### Economic Rationale
 The variance risk premium (VRP) — the gap between implied and realized variance — is well-documented as a predictor of equity returns. However, the *conditional* VRP controlling for cross-sectional skew is not. When the put-call skew steepens relative to a regime-conditional baseline, institutional hedgers are paying excessive insurance premium — a systematic payer that mean-reverts as hedging demand normalizes.
@@ -55,6 +57,8 @@ IC target: 0.04–0.07 monthly; Sharpe contribution ~0.4–0.6 standalone.
 
 ## Signal 2 — XAFL: Cross-Asset Funding Liquidity Stress Index
 
+[🔝 Back to Top](#-table-of-contents)
+
 ### Economic Rationale
 When dollar funding markets tighten (TED spread widens, OIS-LIBOR/SOFR basis elevates, FX swap basis turns negative), leveraged players are forced to unwind cross-asset carry positions. This creates predictable price pressure orthogonal to the carry level itself — it's about the *change in funding cost* relative to priced-in expectations, not the absolute cost.
 
@@ -80,6 +84,8 @@ Weights estimated via PCA on funding spread panel; first PC explains ~65% of var
 
 ## Signal 3 — CBOD: Central Bank Option-Implied Growth Divergence
 
+[🔝 Back to Top](#-signal-overview-table)
+
 ### Economic Rationale
 Central bank forward guidance is priced into rate futures and FX forwards (the carry channel). But when options on rates (swaptions, eurodollar/SOFR options) imply a *different* growth path than the spot forward curve, the divergence reveals that the options market is pricing in a CB policy error or surprise — orthogonal to the carry that is already priced in the forward.
 
@@ -104,6 +110,8 @@ CBOD_i = (CB_forward_path_i - CB_spot_path_i) / σ_swaption_i
 ---
 
 ## Signal 4 — RMVD: Realized-Implied Vol Term-Structure Divergence
+
+[🔝 Back to Top](#-signal-overview-table)
 
 ### Economic Rationale
 The RV/IV spread (variance risk premium) is well-known. Less exploited is the *term-structure* of that spread: the difference between the 1M VRP and the 3M VRP. When short-dated realized vol spikes but long-dated implied vol lags, institutional structured-product sellers are slow to adjust their 3M hedges — creating a predictable convergence trade.
@@ -131,6 +139,8 @@ Signal is in vol-of-vol space; negative RMVD = short-dated vol spike not yet pri
 
 ## Signal 5 — XCOA: Cross-Currency Order-Flow Adverse Selection
 
+[🔝 Back to Top](#-signal-overview-table)
+
 ### Economic Rationale
 In FX markets, Glosten-Milgrom adverse selection predicts that order flow from informed participants (hedge funds, CB reserve managers) permanently moves prices, while uninformed flow (corporate hedgers, tourist flows) reverts. By decomposing signed order flow via the Kyle lambda into informed vs. uninformed components, we can position with the informed flow and fade the uninformed — orthogonal to both carry (interest rate differential) and momentum (price direction).
 
@@ -156,6 +166,8 @@ XCOA_i = EMA(Informed_flow_i, τ=12h) / σ_30d_i
 ---
 
 ## Signal 6 — EMCR: Emerging Market Capital-Flow Regime Classifier
+
+[🔝 Back to Top](#-signal-overview-table)
 
 ### Economic Rationale
 EM asset classes exhibit distinct risk-on/risk-off regimes driven by global capital flows. An HMM-based regime classifier that identifies "risk-on accumulation," "risk-off flight," and "transition" regimes generates positioning signals that are orthogonal to trend (which reacts to prices) because regime transition leads prices by 1–3 days via flow data.
@@ -185,6 +197,8 @@ Key: the flow-based observations precede price realization by 24–72 hours.
 
 ## Signal 7 — NVIX: News-Sentiment VIX Basis
 
+[🔝 Back to Top](#-signal-overview-table)
+
 ### Economic Rationale
 Financial news NLP sentiment aggregated at the macro level explains a component of implied vol that is *not* explained by realized vol history. When the sentiment-implied fear gauge diverges from the actual VIX, market participants are either over- or under-reacting to news flow — creating a mean-reversion signal in vol space.
 
@@ -211,6 +225,8 @@ Orthogonal by construction: residual from VIX regression already strips carry an
 ---
 
 ## Signal 8 — TXCA: Term-Structure Convexity Arbitrage
+
+[🔝 Back to Top](#-signal-overview-table)
 
 ### Economic Rationale
 In fixed income markets, the forward rate contains a convexity bias: the expected short rate implied by the forward curve systematically overestimates the realized path due to the positive convexity of bond prices. This convexity premium varies across the yield curve term structure and across currencies — and is NOT the same as the carry (yield differential). It is purely a curvature/optionality feature of the rate surface.
@@ -239,6 +255,8 @@ Carry = yield differential (level). Convexity bias = curvature differential (sec
 
 ## Signal 9 — SADS: Satellite-Derived Activity Divergence Score
 
+[🔝 Back to Top](#-signal-overview-table)
+
 ### Economic Rationale
 Satellite data (nighttime light intensity, port vessel congestion, oil storage tank levels from synthetic aperture radar) provides a real-time proxy for economic activity that precedes official GDP/PMI releases by 30–60 days. The divergence between the satellite-implied activity signal and the consensus macro forecast is orthogonal to all price-based signals because it derives from physical-world observations rather than market prices.
 
@@ -264,6 +282,8 @@ SADS_normalized_i = SADS_i / σ_60d(SADS_i)
 ---
 
 ## Signal 10 — PCFD: Post-Close Flow Discontinuity
+
+[🔝 Back to Top](#-signal-overview-table)
 
 ### Economic Rationale
 In liquid futures markets, the close-to-open return gap contains information from after-hours events, options expiry delta-hedging flows, and institutional portfolio rebalancing that is mechanically disconnected from the intraday price series. This gap is NOT captured by momentum (which uses close-to-close returns) or carry (which is a level signal). The systematic component of the gap is predictable from the composition of outstanding option open interest and the magnitude of after-hours news flow.
