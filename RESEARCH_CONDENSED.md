@@ -207,9 +207,9 @@ momentum, and carry. Think of it as the residual from a regression.*
 
 $$r_{i,t} = \Phi^{-1}\!\left(\frac{\text{rank}(\hat{\alpha}_{i,t})}{N+1}\right)$$
 
-*Non-mathematically: map ordinal ranks to normal quantiles. This throws away
+**Non-mathematically: map ordinal ranks to normal quantiles. This throws away
 information about magnitude but guarantees the marginal distribution of scores is
-$\mathcal{N}(0,1)$ — which is what downstream portfolio optimisers assume.*
+$\mathcal{N}(0,1)$ — which is what downstream portfolio optimisers assume.**
 
 ---
 
