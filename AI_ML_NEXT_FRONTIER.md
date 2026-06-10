@@ -790,18 +790,18 @@ MONTH 6 — PRODUCTION + ITERATION
 
 | Equation | Formula | Intuition |
 |----------|---------|-----------|
-| IC decay with crowding | $`\dot{IC} = -\kappa, \quad IC - \delta, \quad C, \quad IC`$ | Speed-to-market value |
-| KPI score | $\text{Score} = \frac{w_1 \hat{IC} + w_2\sqrt{B} + w_3(1-\|\rho^{\max}\|)}{1 + w_4 C^{\text{data}} + w_5 K}$ | Multi-objective signal ranking |
-| IC pre-screen | $\|\widehat{IC}_f\| > 0.02,\ p < 0.10$ | Fast feature filter |
+| IC decay with crowding | $`\dot{IC}(t) = -\kappa \cdot IC(t) - \delta \cdot C(t) \cdot IC(t)`$ | Speed-to-market value. The loss of signal ($`\dot{IC}`$) is proportional to its current strength. $`\kappa`$ is the natural, organic decay (e.g., macro data becoming old news), and $`\delta \cdot C(t)`$ represents the premium decay forced by market crowding (other funds running the same model). |
+| KPI score | $`\text{Score} = \left( w_1 \hat{IC} + w_2\sqrt{B} - w_3 \|\rho^{\max}\| \right) \cdot e^{-(w_4 C^{\text{data}} + w_5 K)}`$ | Multi-objective signal ranking. If a signal uses massive alternative data costs ($`C^{\text{data}}`$) or explodes in complexity ($`K`$), its score is smoothly squeezed toward zero. |
+| IC pre-screen | $`\\|\widehat{IC}_f\\| > 0.02, \quad p < 0.10`$ | Fast feature filter. **$`\\|\widehat{IC}_f\\| > 0.02`$:** For a systematic macro signal (trading highly liquid indices, FX, or commodities), an absolute Information Coefficient above $`0.02`$ ($`2\\%`$) over a meaningful horizon is a standard threshold for "economically viable" predictive power. **$`p < 0.10`$:** The p-value check ensures that this $`0.02`$ IC isn't just statistical noise, establishing a $`90\\%`$ confidence interval that the correlation is real. |
 
 ### ML Validation
 
 | Equation | Formula | Intuition |
 |----------|---------|-----------|
-| Expected max SR (noise) | $E[\max_{m \leq M} SR_m] \approx \sqrt{2\ln M / T}$ | Selection bias benchmark |
-| DSR | $\Phi\!\left(\frac{(\widehat{SR} - SR^*)\sqrt{T-1}}{\sqrt{1 - \hat{\gamma}_3\widehat{SR} + \frac{\hat{\gamma}_4-1}{4}\widehat{SR}^2}}\right)$ | Selection-bias-corrected SR |
-| Occam gate | $IC_{\text{OOS}}(M_{k+1}) - IC_{\text{OOS}}(M_k) > \text{cv}(\alpha\!=\!0.05)$ | Model complexity cutoff |
-| Throughput | $N_{\text{hyp}} \times N_{\text{agents}} / (T_{\text{CPCV}} / N_{\text{nodes}})$ | Factory scaling equation |
+| Expected max SR (noise) | $`E[\max_{m \leq M} SR_m] \approx \sqrt{2\ln M / T}`$ | Selection bias benchmark |
+| DSR | $`SR^* = \sqrt{\sigma^2_{SR}} \left( (1-\gamma)\Phi^{-1}\left(1-\frac{1}{M}\right) + \gamma\Phi^{-1}\left(1-\frac{1}{M}e^{-1}\right) \right)`$ | Selection-bias-corrected SR |
+| Occam gate | $`IC_{\text{OOS}}(M_{k+1}) - IC_{\text{OOS}}(M_k) > z_{1-\alpha} \cdot \frac{\sigma_{\Delta IC}}{\sqrt{T_{\text{eff}}}}`$ | Model complexity cutoff. Instead of checking if the new model is just "slightly better," this formula creates a **statistical volatility channel**. If the difference in performance ($`\Delta IC`$) is highly volatile across different macro regimes, $`\sigma_{\Delta IC}`$ expands, making the hurdle rate significantly harder to cross. This prevents the pipeline from adopting a complex model that performs phenomenally well in an expansionary regime but collapses during a liquidity crisis. In practice, the out-of-sample vectors $`IC_{\text{OOS}}(M_{k+1})$ and $IC_{\text{OOS}}(M_k)`$ should not be derived from a single historical split. They are generated via **Combinatorial Purged and Embargoed Cross-Validation (CPCV)**. By testing the models across multiple combinatorial paths that have been strictly purged of lookahead bias and embargoed to prevent overlapping data leakage, you generate a highly stable, non-overfitted distribution of $\Delta IC$. The Occam Gate evaluates the cross-validated paths simultaneously to ensure the complex model introduces persistent structural alpha rather than localized noise-fitting. |
+| Throughput | $`\text{Throughput} = N_{\text{hyp}} \times N_{\text{agents}} / (T_{\text{CPCV}} / N_{\text{nodes}}) \quad \text{or } \text{Throughput} = \frac{N_{\text{hyp}} \times N_{\text{agents}} \times N_{\text{nodes}}}{T_{\text{CPCV}}}`$  | Factory scaling equation. This is a fantastic operational engineering equation. It quantifies your compute efficiency when running massive ML search spaces. This cleanly shows that your research velocity scales linearly with your compute cluster size ($`N_{\text{nodes}}`$), but is throttled by how strictly you structure your validation metrics ($`T_{\text{CPCV}}`$). If you increase the number of paths in your cross-validation to prevent overfitting, your throughput drops unless you scale up your cluster hardware. |
 
 ### Guardrails
 
