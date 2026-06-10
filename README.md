@@ -150,6 +150,28 @@ Each signal passes a **3-step causal validation stack** and receives a causal co
 
 **Mid-to-high frequency fit:** At 4× daily rebalancing, intraday data releases (flash PMI, inflation prints, NFP) arrive within the holding period. MGD is specifically designed to capture the lag between release and full price adjustment — the signal has highest predictive content in the 1–6 hour window post-release.
 
+> [!IMPORTANT]
+> **Nowcasting** is the prediction of the current or very near-future state of the economy (like current-quarter GDP) using real-time, high-frequency data, because official metrics often have long publication lags. It helps policymakers and investors make decisions without waiting for finalized reports. [1, 2, 3]  
+>
+> **Nowcast Composite Surprise**
+>
+> • Measures how much incoming economic data exceeds or falls short of real-time predictions. 
+> • Positive surprise: Data is stronger than the nowcast. 
+> • Negative surprise: Data is weaker than the nowcast.
+>
+> **Forward-Priced Growth Expectation**
+>
+> • Represents the economic growth already priced into financial markets (e.g., bond yields, equity futures). 
+> • Acts as a baseline market expectation for future periods. 
+> • Above-expectation pricing: Anticipates accelerated growth. 
+> • Below-expectation pricing: Anticipates a slowdown.
+>
+> **The Dynamic Between the Two**
+>
+> • Market Reaction: Markets react when the nowcast composite surprise clashes with forward-priced growth expectations. 
+> • Positive Shock: Positive nowcast surprises cause markets to reprice higher if forward expectations were too low. 
+> • Negative Shock: Negative nowcast surprises trigger sell-offs if forward pricing was overly optimistic.
+
 ---
 ---
 
