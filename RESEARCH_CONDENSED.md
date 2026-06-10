@@ -116,7 +116,7 @@ the convenience of having it now, futures trade below spot — backwardation.*
 
 The convenience yield is **non-linear** in inventory $I_t$:
 
-$$c = g(I_t) = \begin{cases} c_{\min} & I_t > I^* \\ g_0 + g_1/I_t & I_t \leq I^* \end{cases}$$
+$$c = g(I_t) = \begin{cases} c_{\min} & I_t > I^{\*} \\ g_0 + g_1/I_t & I_t \leq I^{\*} \end{cases}$$
 
 ```
 THE HOCKEY-STICK CONVENIENCE YIELD
@@ -269,17 +269,17 @@ $$\mu_t = \mu_{t-1} + \eta_t, \quad \eta_t \sim \mathcal{N}(0, \sigma^2_\eta)$$
 
 The steady-state Kalman gain is:
 
-$$k^* = \alpha = \frac{\sqrt{q^2 + 4q} - q}{2}, \quad q = \frac{\sigma^2_\eta}{\sigma^2_\varepsilon}$$
+$$k^{\*} = \alpha = \frac{\sqrt{q^2 + 4q} - q}{2}, \quad q = \frac{\sigma^2_\eta}{\sigma^2_\varepsilon}$$
 
 This is identical to an EMA with $\alpha = 2/(\tau+1)$, $\tau=5$ days:
 
 $$\hat{\mu}_t = \alpha \mathcal{S}_t + (1-\alpha)\hat{\mu}_{t-1}$$
 
-*Non-mathematically: the EMA is not a heuristic smoothing trick — it is provably
+**Non-mathematically: the EMA is not a heuristic smoothing trick — it is provably
 the minimum-mean-squared-error linear filter for a signal that evolves slowly
 relative to its noise. We use $\tau = 5$ days, implying a signal-to-noise ratio
 $q \approx 0.29$: market-priced growth expectations update about 30 basis points
-per day relative to their total noise level.*
+per day relative to their total noise level.**
 
 ### Step 4 — Divergence Signal
 
@@ -351,11 +351,11 @@ Newey-West variance with Andrews (1991) optimal bandwidth:
 
 $$\hat{\Sigma}_{\text{HAC}} = \hat{\Gamma}_0 + \sum_{j=1}^{L} \left(1 - \frac{j}{L+1}\right)\left(\hat{\Gamma}_j + \hat{\Gamma}_j^T\right), \quad L = \left\lfloor 4\left(\frac{T}{100}\right)^{2/9}\right\rfloor$$
 
-*Non-mathematically: OLS standard errors assume the residuals are independent draws.
+**Non-mathematically: OLS standard errors assume the residuals are independent draws.
 Macro time series have autocorrelation — yesterday's shock echoes into today's. Without
 HAC correction, standard errors are too small by 2–3×, turning genuine noise into
 statistically significant results. With HAC and $L=12$ lags, only real lead-lag
-relationships survive.*
+relationships survive.**
 
 Exogenous controls $Z_t$: session dummies (Asia/London/NY AM/NY PM) + VIX proxy.
 
@@ -431,7 +431,7 @@ preventing information leakage through the label overlap that plagues financial 
 
 ### 4.2 — Multiple Testing Correction
 
-**Bonferroni** (FWER): $\alpha^* = 0.05/M$ — for $M=2$ signals: $\alpha^* = 0.025$.
+**Bonferroni** (FWER): $\alpha^{\*} = 0.05/M$ — for $M=2$ signals: $\alpha^{\*} = 0.025$.
 
 **Benjamini-Hochberg** (FDR): reject $H_{(i)}$ for $i \leq \max\{j: p_{(j)} \leq j\alpha/M\}$.
 
@@ -443,9 +443,9 @@ Target: portfolio FDR reduction $\geq 30\%$ by Month 6.
 
 ### 4.3 — Deflated Sharpe Ratio (Bailey & Lopez de Prado 2014)
 
-$$\text{DSR}(\widehat{SR}) = \Phi\!\left(\frac{(\widehat{SR} - SR^*)\sqrt{T-1}}{\sqrt{1 - \hat{\gamma}_3 \widehat{SR} + \frac{\hat{\gamma}_4-1}{4}\widehat{SR}^2}}\right)$$
+$$\text{DSR}(\widehat{SR}) = \Phi\!\left(\frac{(\widehat{SR} - SR^{\*})\sqrt{T-1}}{\sqrt{1 - \hat{\gamma}_3 \widehat{SR} + \frac{\hat{\gamma}_4-1}{4}\widehat{SR}^2}}\right)$$
 
-where $SR^*$ = expected maximum SR from $M$ random trials, $\hat{\gamma}_3$ = P&L skewness,
+where $SR^{\*}$ = expected maximum SR from $M$ random trials, $\hat{\gamma}_3$ = P&L skewness,
 $\hat{\gamma}_4$ = excess kurtosis.
 
 *Non-mathematically: a backtest SR of 2.0 sounds excellent, but if you tested 50 parameter
@@ -506,7 +506,7 @@ RETIREMENT DECISION TABLE
 
 ### 5.1 — Ledoit-Wolf Covariance Shrinkage
 
-$$\hat{\Sigma}^{\text{LW}} = (1 - \hat{\alpha}^*)\hat{\Sigma}^{\text{sample}} + \hat{\alpha}^* \cdot \frac{\text{tr}(\hat{\Sigma})}{N} I$$
+$$\hat{\Sigma}^{\text{LW}} = (1 - \hat{\alpha}^{\*})\hat{\Sigma}^{\text{sample}} + \hat{\alpha}^{\*} \cdot \frac{\text{tr}(\hat{\Sigma})}{N} I$$
 
 *Non-mathematically: the sample covariance matrix from $T=252$ days and $N=50$ assets
 has $N(N+1)/2 = 1275$ free parameters estimated from $252 \times 50 = 12{,}600$ data
@@ -667,7 +667,7 @@ which was violated.
 ### 🚨 Pitfall 4 — Multiple Testing & Overfitting
 
 **Problem:** The two signals were selected from a larger hypothesis space. Even with
-$M=2$, the Bonferroni-corrected significance level is $\alpha^* = 0.025$. Any researcher
+$M=2$, the Bonferroni-corrected significance level is $\alpha^{\*} = 0.025$. Any researcher
 who tested 20+ hypotheses before arriving at these two has implicitly used a much larger
 $M$ — and the Bonferroni correction should reflect the full search breadth, not just the
 reported signals.
