@@ -369,7 +369,12 @@ Every candidate signal is replayed through three stress regimes:
 | COVID | Feb 2020 – Apr 2020 | Volatility explosion; macro surprise regime |
 | Rate Shock | Jan 2022 – Oct 2022 | Carry and trend inversion; basis blow-up |
 
-Gate: $\text{Max DD}_{\text{stress}} < 2 \times \text{Max DD}_{\text{normal}}$.
+Gate:
+
+$$
+\text{Max DD}_{\text{stress}} < 2 \times \text{Max DD}_{\text{normal}}
+$$
+
 Any signal that doubles its drawdown in a stress regime relative to normal
 conditions is flagged for regime-conditional weighting or retirement.
 
