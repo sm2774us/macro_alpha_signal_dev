@@ -1,4 +1,3 @@
-// Copyright 2025 Citadel Systematic Macro Pod
 // Licensed under Apache 2.0
 //
 // alpha_engine.hpp — C++26 hot-path signal computation engine.
@@ -195,7 +194,7 @@ inline double EMAUpdate(double prev, double new_val, double alpha) noexcept {
 }
 
 // ---------------------------------------------------------------------------
-// HLS Branch — Signal 6: ISCF (Idiosyncratic Supply Chain Flow)
+// Proprietary Trading Firm — Branch — Signal 6: ISCF (Idiosyncratic Supply Chain Flow)
 //
 // α_ISCF_i = sign(z_i) * sqrt(|z_i|) * (1 - β_macro_i)
 // where z_i = (basis_i - median(basis)) / MAD(basis)
@@ -214,7 +213,7 @@ class IdiosyncraticSupplyChainFlow {
 };
 
 // ---------------------------------------------------------------------------
-// HLS Branch — Signal 7: MGD (Real-Time Macro Growth Divergence)
+// Proprietary Trading Firm — Branch — Signal 7: MGD (Real-Time Macro Growth Divergence)
 //
 // S_i = w_PMI*PMI_i + w_CPI*CPI_i + w_EMP*EMP_i
 // α_MGD_i = EMA_smooth[(S_i - FWD_i) / max(σ_roll_i, ε)]

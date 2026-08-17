@@ -1,4 +1,3 @@
-// Copyright 2025 Citadel Systematic Macro Pod
 // bindings.cpp — nanobind glue exposing C++26 hot-path to Python 3.13.
 // Google C++ Style Guide.
 
@@ -149,7 +148,7 @@ NB_MODULE(_citadel_alpha_cpp, m) {
         "sr"_a, "sr_benchmark"_a, "T"_a, "skew"_a, "kurt"_a, "N_trials"_a,
         "Compute Deflated Sharpe Ratio (Bailey & Lopez de Prado, 2014).");
   // ------------------------------------------------------------------
-  // HLS Signal 6: ISCF
+  // Proprietary Trading Firm — Signal 6: ISCF
   // ------------------------------------------------------------------
   m.def("compute_iscf",
     [](const nb::ndarray<const double, nb::ndim<1>, nb::c_contig>& spot,
@@ -165,7 +164,7 @@ NB_MODULE(_citadel_alpha_cpp, m) {
     "ISCF hot-path: volatility-normalised backwardation z-score.");
 
   // ------------------------------------------------------------------
-  // HLS Signal 7: MGD
+  // Proprietary Trading Firm — Signal 7: MGD
   // ------------------------------------------------------------------
   m.def("compute_mgd",
     [](const nb::ndarray<const double, nb::ndim<1>, nb::c_contig>& pmi,

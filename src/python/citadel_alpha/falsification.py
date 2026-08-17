@@ -1,4 +1,3 @@
-# Copyright 2025 Citadel Systematic Macro Pod
 # citadel_alpha/falsification.py
 # Google Python Style Guide.
 
@@ -47,11 +46,11 @@ class CPCVResult:
     """Results of Combinatorial Purged Cross-Validation."""
 
     n_paths: int
-    sharpe_distribution: FloatArray    # SR across all test paths
+    sharpe_distribution: FloatArray  # SR across all test paths
     mean_sr: float
     std_sr: float
-    psr_gt_floor: float                # P(SR > SHARPE_FLOOR_SYSTEMATIC_MACRO)
-    is_valid: bool                     # True if psr_gt_floor > 0.95
+    psr_gt_floor: float  # P(SR > SHARPE_FLOOR_SYSTEMATIC_MACRO)
+    is_valid: bool  # True if psr_gt_floor > 0.95
 
 
 @dataclass
@@ -61,7 +60,7 @@ class SensitivityResult:
     param_grid: FloatArray
     sharpe_grid: FloatArray
     max_gradient: float
-    is_robust: bool                    # True if max_gradient < epsilon
+    is_robust: bool  # True if max_gradient < epsilon
 
 
 @dataclass
@@ -80,9 +79,9 @@ class HalfLifeResult:
     """Signal half-life estimate from OU process regression."""
 
     half_life_days: float
-    kappa: float                       # OU mean-reversion speed
-    is_alive: bool                     # True if half_life within [21, 63]
-    retirement_alert: bool             # True if decaying below threshold
+    kappa: float  # OU mean-reversion speed
+    is_alive: bool  # True if half_life within [21, 63]
+    retirement_alert: bool  # True if decaying below threshold
 
 
 @dataclass
@@ -90,11 +89,11 @@ class SharpeWaterfall:
     """Sharpe ratio decay waterfall decomposition."""
 
     gross_sr: float
-    sr_after_tc: float                 # After transaction costs
-    sr_after_overfit: float            # After overfitting haircut
-    sr_after_slippage: float           # After live slippage & decay
+    sr_after_tc: float  # After transaction costs
+    sr_after_overfit: float  # After overfitting haircut
+    sr_after_slippage: float  # After live slippage & decay
     net_sr: float
-    passes_floor: bool                 # gross_sr >= SHARPE_FLOOR_SYSTEMATIC_MACRO
+    passes_floor: bool  # gross_sr >= SHARPE_FLOOR_SYSTEMATIC_MACRO
     t_stat: float
 
 
@@ -322,9 +321,7 @@ def estimate_half_life(
     half_life = math.log(2.0) / kappa
 
     is_alive = C.ALPHA_HALF_LIFE_MIN <= half_life <= C.ALPHA_HALF_LIFE_MAX
-    retirement_alert = (
-        half_life < C.ALPHA_HALF_LIFE_MIN * C.HALF_LIFE_BREACH_THRESHOLD
-    )
+    retirement_alert = half_life < C.ALPHA_HALF_LIFE_MIN * C.HALF_LIFE_BREACH_THRESHOLD
 
     return HalfLifeResult(
         half_life_days=half_life,
@@ -537,7 +534,7 @@ def deflated_sharpe_ratio(
         sr_star = 0.0
 
     # Variance of SR estimator (Mertens 2002).
-    sr_var = (1.0 - skewness * sr + (excess_kurt - 1.0) / 4.0 * sr ** 2) / (n - 1)
+    sr_var = (1.0 - skewness * sr + (excess_kurt - 1.0) / 4.0 * sr**2) / (n - 1)
     sr_var = max(sr_var, 1e-12)
 
     z = (sr - sr_star) / math.sqrt(sr_var)
@@ -570,9 +567,9 @@ def scan_parameter_manifold(
 class VixRegimeICReport:
     """IC breakdown across VIX regimes."""
 
-    risk_on_ic: float       # Mean IC when VIX < 20
-    transition_ic: float    # Mean IC when 20 <= VIX < 30
-    crisis_ic: float        # Mean IC when VIX >= 30
+    risk_on_ic: float  # Mean IC when VIX < 20
+    transition_ic: float  # Mean IC when 20 <= VIX < 30
+    crisis_ic: float  # Mean IC when VIX >= 30
     stability_score: float  # ∈ [0, 1]: how stable IC is across regimes
 
 
@@ -607,7 +604,9 @@ def vix_regime_ic(
     # Stability score: 1 - normalised std of regime ICs.
     regime_ics = np.array([risk_on_ic, transition_ic, crisis_ic])
     ic_range = float(np.max(np.abs(regime_ics)) - np.min(np.abs(regime_ics)))
-    stability = float(np.clip(1.0 - ic_range / max(np.mean(np.abs(regime_ics)), 1e-12), 0.0, 1.0))
+    stability = float(
+        np.clip(1.0 - ic_range / max(np.mean(np.abs(regime_ics)), 1e-12), 0.0, 1.0)
+    )
 
     return VixRegimeICReport(
         risk_on_ic=risk_on_ic,

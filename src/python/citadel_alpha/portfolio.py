@@ -1,4 +1,3 @@
-# Copyright 2025 Citadel Systematic Macro Pod
 # citadel_alpha/portfolio.py
 # Google Python Style Guide.
 
@@ -33,6 +32,7 @@ MAX_KELLY_FRACTION = 0.50  # Standard institutional half-Kelly cap.
 # Ledoit-Wolf shrinkage (analytical Oracle Approximating Shrinkage)
 # ---------------------------------------------------------------------------
 
+
 def ledoit_wolf_shrink(returns_matrix: FloatArray) -> FloatArray:
     """Compute Ledoit-Wolf shrunk covariance matrix.
 
@@ -47,6 +47,7 @@ def ledoit_wolf_shrink(returns_matrix: FloatArray) -> FloatArray:
     """
     try:
         from sklearn.covariance import OAS  # type: ignore[import]
+
         oas = OAS()
         oas.fit(returns_matrix)
         return oas.covariance_
@@ -61,7 +62,7 @@ def ledoit_wolf_shrink(returns_matrix: FloatArray) -> FloatArray:
     frob_s = np.sum(s * s)
 
     mu = trace_s / n
-    delta_num = frob_s + trace_s ** 2
+    delta_num = frob_s + trace_s**2
     delta_den = (t + 1 - 2.0 / n) * (frob_s - trace_s2 / n)
     delta = max(0.0, min(1.0, delta_num / max(delta_den, 1e-12)))
 
@@ -72,6 +73,7 @@ def ledoit_wolf_shrink(returns_matrix: FloatArray) -> FloatArray:
 # ---------------------------------------------------------------------------
 # Hierarchical Risk Parity (HRP)
 # ---------------------------------------------------------------------------
+
 
 def _get_cluster_variance(cov: FloatArray, cluster_items: list[int]) -> float:
     """Inverse-variance weight cluster variance."""
@@ -149,6 +151,7 @@ def hierarchical_risk_parity(
 # Fractional Kelly sizing
 # ---------------------------------------------------------------------------
 
+
 def fractional_kelly_sizing(
     expected_alpha: FloatArray,
     variance: FloatArray,
@@ -175,6 +178,7 @@ def fractional_kelly_sizing(
 # ---------------------------------------------------------------------------
 # Portfolio performance metrics
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class PortfolioMetrics:
@@ -271,7 +275,7 @@ def deflated_sharpe_ratio(
             np.log(n_trials * np.log(n_trials + 1e-6))
         )
 
-    denom = np.sqrt(1.0 - skew * sr + (kurt - 1.0) / 4.0 * sr ** 2)
+    denom = np.sqrt(1.0 - skew * sr + (kurt - 1.0) / 4.0 * sr**2)
     denom = max(denom, 1e-12)
     z = (sr - sr_benchmark) * np.sqrt(n_obs - 1) / denom
     return float(norm.cdf(z))

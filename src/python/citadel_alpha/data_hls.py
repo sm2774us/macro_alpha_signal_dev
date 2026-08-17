@@ -1,4 +1,3 @@
-# Copyright 2025 HLS Trading / Citadel Systematic Macro Pod
 # citadel_alpha/data_hls.py
 # Google Python Style Guide.
 
@@ -37,16 +36,16 @@ class CommodityPanelData:
     t: int
     n: int
 
-    spot: FloatArray            # (T, N) front-month prices
-    deferred: FloatArray        # (T, N) deferred contract prices
-    rvol: FloatArray            # (T, N) annualised realised vol
-    macro_beta: FloatArray      # (T, N) macro-beta ∈ [0, 1]
-    forward_returns: FloatArray # (T, N)
-    trend_returns: FloatArray   # (T, N) baseline trend factor
-    momentum_returns: FloatArray# (T, N) baseline momentum factor
-    carry_returns: FloatArray   # (T, N) baseline carry factor
-    session_dummies: FloatArray # (T, 4) Asia/Europe/AmAM/AmPM dummies
-    vix_proxy: FloatArray       # (T,) intraday VIX proxy
+    spot: FloatArray  # (T, N) front-month prices
+    deferred: FloatArray  # (T, N) deferred contract prices
+    rvol: FloatArray  # (T, N) annualised realised vol
+    macro_beta: FloatArray  # (T, N) macro-beta ∈ [0, 1]
+    forward_returns: FloatArray  # (T, N)
+    trend_returns: FloatArray  # (T, N) baseline trend factor
+    momentum_returns: FloatArray  # (T, N) baseline momentum factor
+    carry_returns: FloatArray  # (T, N) baseline carry factor
+    session_dummies: FloatArray  # (T, 4) Asia/Europe/AmAM/AmPM dummies
+    vix_proxy: FloatArray  # (T,) intraday VIX proxy
 
 
 @dataclass
@@ -57,17 +56,17 @@ class FXForwardPanelData:
     t: int
     n: int
 
-    pmi_surprise: FloatArray    # (T, N)
-    cpi_surprise: FloatArray    # (T, N)
-    emp_surprise: FloatArray    # (T, N)
-    fwd_expectation: FloatArray # (T, N) forward-priced growth (lagged)
-    roll_std: FloatArray        # (T, N) 60-day rolling std of composite
-    forward_returns: FloatArray # (T, N)
-    trend_returns: FloatArray   # (T, N)
-    momentum_returns: FloatArray# (T, N)
-    carry_returns: FloatArray   # (T, N)
-    session_dummies: FloatArray # (T, 4)
-    vix_proxy: FloatArray       # (T,)
+    pmi_surprise: FloatArray  # (T, N)
+    cpi_surprise: FloatArray  # (T, N)
+    emp_surprise: FloatArray  # (T, N)
+    fwd_expectation: FloatArray  # (T, N) forward-priced growth (lagged)
+    roll_std: FloatArray  # (T, N) 60-day rolling std of composite
+    forward_returns: FloatArray  # (T, N)
+    trend_returns: FloatArray  # (T, N)
+    momentum_returns: FloatArray  # (T, N)
+    carry_returns: FloatArray  # (T, N)
+    session_dummies: FloatArray  # (T, 4)
+    vix_proxy: FloatArray  # (T,)
 
 
 def _generate_session_dummies(t: int, rng: np.random.Generator) -> FloatArray:
@@ -129,22 +128,21 @@ def generate_commodity_panel(
     spot = np.zeros((t, n))
     spot[0] = rng.uniform(50, 500, n)
     for i in range(1, t):
-        spot[i] = spot[i - 1] * np.exp(
-            rng.normal(0, rvol[i] / np.sqrt(252), n)
-        )
+        spot[i] = spot[i - 1] * np.exp(rng.normal(0, rvol[i] / np.sqrt(252), n))
 
     # Persistent AR(1) basis z-score per asset (ρ=0.93 → half-life ≈ 9.5 steps)
     # This gives the IC series genuine mean-reversion in the [21,63]d range.
     basis_ar_rho = 0.93
-    basis_innov_std = np.sqrt(1.0 - basis_ar_rho ** 2) * 1.2  # unit-variance AR
+    basis_innov_std = np.sqrt(1.0 - basis_ar_rho**2) * 1.2  # unit-variance AR
     basis_z_latent = np.zeros((t, n))
     basis_z_latent[0] = rng.normal(0, 1.0, n)
     for i in range(1, t):
-        basis_z_latent[i] = (
-            basis_ar_rho * basis_z_latent[i - 1]
-            + rng.normal(0, basis_innov_std, n)
+        basis_z_latent[i] = basis_ar_rho * basis_z_latent[i - 1] + rng.normal(
+            0, basis_innov_std, n
         )
-    basis_z_latent = np.clip(basis_z_latent, -C.ISCF_MAX_BASIS_ZSCORE, C.ISCF_MAX_BASIS_ZSCORE)
+    basis_z_latent = np.clip(
+        basis_z_latent, -C.ISCF_MAX_BASIS_ZSCORE, C.ISCF_MAX_BASIS_ZSCORE
+    )
 
     # Reconstruct deferred from persistent basis
     basis_mag = 0.04 * rvol
@@ -152,7 +150,8 @@ def generate_commodity_panel(
 
     macro_beta = np.clip(
         rng.beta(2, 5, (t, n)),
-        0.0, 0.8,
+        0.0,
+        0.8,
     )
 
     # Baseline factors
@@ -163,7 +162,9 @@ def generate_commodity_panel(
     # Forward returns: Granger-causal on lagged basis_z (lag-1 and lag-2)
     # SNR calibrated so IC ≈ 0.04 cross-sectionally
     snr_coeff = 0.0018  # ~3x prior (was 0.0004) — calibrated for IC≈0.04
-    idio_signal = np.sign(basis_z_latent) * np.sqrt(np.abs(basis_z_latent)) * (1.0 - macro_beta)
+    idio_signal = (
+        np.sign(basis_z_latent) * np.sqrt(np.abs(basis_z_latent)) * (1.0 - macro_beta)
+    )
     noise = rng.normal(0, 0.008, (t, n))
     fwd_ret = np.zeros((t, n))
     fwd_ret[0] = noise[0]
@@ -176,8 +177,12 @@ def generate_commodity_panel(
     vix_proxy = np.clip(rng.lognormal(3.0, 0.4, t), 10, 80)
 
     return CommodityPanelData(
-        assets=assets, t=t, n=n,
-        spot=spot, deferred=deferred, rvol=rvol,
+        assets=assets,
+        t=t,
+        n=n,
+        spot=spot,
+        deferred=deferred,
+        rvol=rvol,
         macro_beta=macro_beta,
         forward_returns=fwd_ret,
         trend_returns=trend_ret,
@@ -216,7 +221,7 @@ def generate_fx_panel(
 
     # Latent persistent macro factor per asset (AR(1) ρ=0.91)
     ar_rho = 0.91
-    innov_std = np.sqrt(1.0 - ar_rho ** 2) * 0.4
+    innov_std = np.sqrt(1.0 - ar_rho**2) * 0.4
     latent = np.zeros((t, n))
     latent[0] = rng.normal(0, 0.4, n)
     for i in range(1, t):
@@ -241,7 +246,9 @@ def generate_fx_panel(
     fwd_exp = np.zeros((t, n))
     for i in range(t):
         start = max(0, i - fwd_window)
-        fwd_exp[i] = np.mean(composite[start:i + 1], axis=0) if i > 0 else composite[0]
+        fwd_exp[i] = (
+            np.mean(composite[start : i + 1], axis=0) if i > 0 else composite[0]
+        )
     # Shift by 1 to avoid look-ahead: expectation at t uses data up to t-1
     fwd_exp = np.roll(fwd_exp, 1, axis=0)
     fwd_exp[0] = 0.0
@@ -250,7 +257,7 @@ def generate_fx_panel(
     roll_std = np.zeros((t, n))
     window = C.MGD_ZSCORE_WINDOW
     for i in range(window, t):
-        roll_std[i] = np.std(composite[i - window: i], axis=0, ddof=1)
+        roll_std[i] = np.std(composite[i - window : i], axis=0, ddof=1)
     roll_std[:window] = np.std(composite[:window], axis=0, ddof=1).reshape(1, -1)
     roll_std = np.maximum(roll_std, 1e-8)
 
@@ -274,7 +281,9 @@ def generate_fx_panel(
     vix_proxy = np.clip(rng.lognormal(3.0, 0.4, t), 10, 80)
 
     return FXForwardPanelData(
-        assets=assets, t=t, n=n,
+        assets=assets,
+        t=t,
+        n=n,
         pmi_surprise=pmi_surp,
         cpi_surprise=cpi_surp,
         emp_surprise=emp_surp,

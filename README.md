@@ -1,4 +1,4 @@
-# HLS Alpha Engine — ISCF & MGD Systematic Macro Signals
+# Proprietary Trading Firm — Alpha Engine — ISCF & MGD Systematic Macro Signals
 
 > **Two orthogonal, causally-validated alpha signals** targeting unspanned dimensions of the systematic macro return space at mid-to-high frequency (4× daily rebalancing).  
 > Python 3.13 · C++26 · nanobind · uv · CMake · yfinance/FRED · Plugin data architecture · Docker · GitHub Actions
@@ -6,7 +6,7 @@
 ---
 ---
 
-[![CI — HLS Alpha Engine (ISCF + MGD + Causal Stack)](https://github.com/sm2774us/macro_alpha_signal_dev/actions/workflows/ci.yml/badge.svg)](https://github.com/sm2774us/macro_alpha_signal_dev/actions/workflows/ci.yml)
+[![CI — Proprietary Trading Firm Alpha Engine (ISCF + MGD + Causal Stack)](https://github.com/sm2774us/macro_alpha_signal_dev/actions/workflows/ci.yml/badge.svg)](https://github.com/sm2774us/macro_alpha_signal_dev/actions/workflows/ci.yml)
 
 ---
 ---
@@ -35,7 +35,7 @@
 
 [🔝 Back to Top](#-table-of-contents)
 
-HLS Trading operates systematic macro across FX, commodities, futures, and rates at mid-to-high frequency — rebalancing approximately four times per day. The research culture is **statistics-first**: rigorous thinking over technique, real predictive content separated from noise, linear and non-linear models deployed only where theoretically justified.
+Proprietary Trading Firm operates systematic macro across FX, commodities, futures, and rates at mid-to-high frequency — rebalancing approximately four times per day. The research culture is **statistics-first**: rigorous thinking over technique, real predictive content separated from noise, linear and non-linear models deployed only where theoretically justified.
 
 This engine implements two signals that are structurally orthogonal to trend, momentum, and carry — maximising FLOAM breadth $\text{IR} = \text{IC}\sqrt{N_{\text{breadth}}}$ without cannibalising existing edge:
 
@@ -54,74 +54,74 @@ Each signal passes a **3-step causal validation stack** and receives a causal co
 [🔝 Back to Top](#-table-of-contents)
 
 ```
-┌────────────────────────────────────────────────────────────────────────────┐
-│                     HLS ALPHA ENGINE — SYSTEM ARCHITECTURE                 │
-└────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                     PROPRIETARY TRADING FIRM — ALPHA ENGINE — SYSTEM ARCHITECTURE   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
 
-  ┌──────────────── Data Provider Layer (Design-by-Contract) ──────────────┐
-  │                                                                         │
-  │  AbstractISCFProvider ──► YFinanceISCFProvider  (free: ETF proxies)    │
-  │                      └──► HLSISCFProvider       (Day-1: LME/CME feeds) │
-  │  AbstractMGDProvider  ──► YFinanceMGDProvider   (free: FRED+yfinance)  │
-  │                      └──► HLSMGDProvider        (Day-1: Bloomberg PMI) │
-  │  get_iscf_provider(mode="yfinance"|"hls") ◄── single factory entry     │
-  │  ISCFMarketData / MGDMarketData ◄── frozen dataclass contracts         │
-  └──────────────────────────┬─────────────────────────────────────────────┘
+  ┌──────────────── Data Provider Layer (Design-by-Contract) ────────────────────┐
+  │                                                                              │
+  │  AbstractISCFProvider ──► YFinanceISCFProvider  (free: ETF proxies)          │
+  │                      └──► HLSISCFProvider       (Day-1: LME/CME feeds)       │
+  │  AbstractMGDProvider  ──► YFinanceMGDProvider   (free: FRED+yfinance)        │
+  │                      └──► HLSMGDProvider        (Day-1: Bloomberg PMI)       │
+  │  get_iscf_provider(mode="yfinance"|"proprietary") ◄── single factory entry   │
+  │  ISCFMarketData / MGDMarketData ◄── frozen dataclass contracts               │
+  └──────────────────────────┬───────────────────────────────────────────────────┘
                              │
                              ▼
   ┌──────────────── Signal Computation (Python + C++26) ───────────────────┐
-  │                                                                         │
-  │  signals_hls.py                                                         │
-  │  ├─ compute_iscf()  basis/vol robust z-score → √|z|·sign·(1-β_macro)  │
+  │                                                                        │
+  │  signals_hls.py                                                        │
+  │  ├─ compute_iscf()  basis/vol robust z-score → √|z|·sign·(1-β_macro)   │
   │  │                  → Gram-Schmidt ⊥ [trend, momentum, carry]          │
-  │  └─ compute_mgd()   composite(PMI,CPI,EMP) − EMA[composite] / σ_roll  │
-  │                     → EMA(τ=5) smoothing → Gram-Schmidt ⊥             │
-  │                                                                         │
-  │  C++26 hot-path (_citadel_alpha_cpp.so via nanobind):                 │
-  │  ├─ IdiosyncraticSupplyChainFlow::Compute()  O(N log N) median/MAD    │
-  │  └─ MacroGrowthDivergence::Compute()  vectorised weighted sum         │
+  │  └─ compute_mgd()   composite(PMI,CPI,EMP) − EMA[composite] / σ_roll   │
+  │                     → EMA(τ=5) smoothing → Gram-Schmidt ⊥              │
+  │                                                                        │
+  │  C++26 hot-path (_citadel_alpha_cpp.so via nanobind):                  │
+  │  ├─ IdiosyncraticSupplyChainFlow::Compute()  O(N log N) median/MAD     │
+  │  └─ MacroGrowthDivergence::Compute()  vectorised weighted sum          │
   └──────────────────────────┬─────────────────────────────────────────────┘
                              │ SignalResult: rank_score, IC, ICIR
                              ▼
   ┌──────────────── Causal Validation (3-step) ────────────────────────────┐
-  │                                                                         │
-  │  Step 1: granger_causality_varx()   VARX + HAC Newey-West (L=12)     │
-  │  Step 2: conditional_independence_test()  CMI proxy (partial ρ)       │
-  │  Step 3: dowhy_refutation()  Placebo + MBB Policy Invariance          │
-  │  → γ ∈ {0.00, 0.30, 0.95}  → REJECT / BETA_PROXY / PASS             │
+  │                                                                        │
+  │  Step 1: granger_causality_varx()   VARX + HAC Newey-West (L=12)       │
+  │  Step 2: conditional_independence_test()  CMI proxy (partial ρ)        │
+  │  Step 3: dowhy_refutation()  Placebo + MBB Policy Invariance           │
+  │  → γ ∈ {0.00, 0.30, 0.95}  → REJECT / BETA_PROXY / PASS                │
   └──────────────────────────┬─────────────────────────────────────────────┘
                              │ CausalStackResult + γ
                              ▼
   ┌──────────────── Rebalancing Engine (4× daily) ─────────────────────────┐
-  │                                                                         │
-  │  rebalance.py                                                           │
+  │                                                                        │
+  │  rebalance.py                                                          │
   │  ├─ Session: ASIA | LONDON | NY_OPEN | NY_CLOSE                        │
   │  ├─ w_target = γ · HRP_weights(rank_scores)                            │
-  │  ├─ TCA: TC(bps) = (bid-ask/2)·turnover + γ_impact·√(turnover/ADV)   │
-  │  └─ Go/No-Go: γ < 0.25 → suspend; turnover > 50% → split sessions    │
+  │  ├─ TCA: TC(bps) = (bid-ask/2)·turnover + γ_impact·√(turnover/ADV)     │
+  │  └─ Go/No-Go: γ < 0.25 → suspend; turnover > 50% → split sessions      │
   └──────────────────────────┬─────────────────────────────────────────────┘
                              │ RebalanceDecision per session
                              ▼
   ┌──────────────── Falsification + Portfolio ─────────────────────────────┐
-  │                                                                         │
-  │  falsification.py:  CPCV (45 paths), DSR (Bailey-LdP), BH/Bonferroni │
-  │  portfolio.py:      HRP (Ledoit-Wolf), Kelly sizing                   │
-  │  constants.py:      All empirical constants §1–§5.8                   │
+  │                                                                        │
+  │  falsification.py:  CPCV (45 paths), DSR (Bailey-LdP), BH/Bonferroni   │
+  │  portfolio.py:      HRP (Ledoit-Wolf), Kelly sizing                    │
+  │  constants.py:      All empirical constants §1–§5.8                    │
   └──────────────────────────┬─────────────────────────────────────────────┘
                              │
                              ▼
   ┌──────────────── CLI + CI/CD ───────────────────────────────────────────┐
-  │                                                                         │
+  │                                                                        │
   │  hls-alpha hls-run     → synthetic pipeline                            │
-  │  hls-alpha hls-live    → real market data (yfinance/FRED or HLS)       │
-  │  hls-alpha hls-monitor → KPI + half-life + rebalancing (cron 4×/day)  │
+  │  hls-alpha hls-live    → real market data (yfinance/FRED or Proprietary Trading Firm)
+  │  hls-alpha hls-monitor → KPI + half-life + rebalancing (cron 4×/day)   │
   │  hls-alpha benchmark   → C++ vs Python timing                          │
-  │                                                                         │
-  │  GitHub Actions (4× daily cron: 07:00 / 12:00 / 17:00 / 21:00 UTC):  │
+  │                                                                        │
+  │  GitHub Actions (4× daily cron: 07:00 / 12:00 / 17:00 / 21:00 UTC):    │
   │  ├─ python-build-test  → pytest + coverage                             │
   │  ├─ cpp-build-test     → CMake/Ninja + GTest                           │
-  │  ├─ signal-health-monitor → hls-alpha hls-monitor → KPI_REPORT.md     │
-  │  │   └─ $GITHUB_STEP_SUMMARY (inline PR/run report)                   │
+  │  ├─ signal-health-monitor → hls-alpha hls-monitor → KPI_REPORT.md      │
+  │  │   └─ $GITHUB_STEP_SUMMARY (inline PR/run report)                    │
   │  ├─ benchmark          → timing artifact                               │
   │  └─ docker-build       → multi-stage smoke test                        │
   └────────────────────────────────────────────────────────────────────────┘
@@ -292,7 +292,7 @@ $$
 Statistical significance: $t = \text{SR} \times \sqrt{T \times 4} \geq 3.0$.  
 For $T=252$ days, 4× daily: $t = 2.0 \times \sqrt{1008} \approx 63.5$ ✓
 
-**Six-month walk-forward target:** $\text{SR}_{\text{walk-fwd}} > 0.70$ (lower floor accounts for limited OOS history in first 6 months; per HLS plan KPI).
+**Six-month walk-forward target:** $\text{SR}_{\text{walk-fwd}} > 0.70$ (lower floor accounts for limited OOS history in first 6 months; per Proprietary Trading Firm plan KPI).
 
 ### 6. Deflated Sharpe Ratio (DSR)
 
@@ -342,7 +342,7 @@ Half-life: $T_{1/2} = \ln 2 / \hat{\kappa}$. Pre-agreed retirement gates:
 
 ### Statistics-First Philosophy
 
-Following HLS Trading's research culture: every technique must earn its place through statistical rigor, not novelty.
+Following Proprietary Trading Firm's research culture: every technique must earn its place through statistical rigor, not novelty.
 
 **Linear methods (primary):** OLS regression for Granger causality and OU half-life estimation. Ledoit-Wolf shrinkage (Ledoit & Wolf 2004) for covariance estimation — analytically optimal shrinkage intensity $\hat{\alpha}^*$ minimises the Frobenius norm $\|\hat{\Sigma} - \Sigma\|_F^2$ under a random matrix theory framework. No hyperparameter search needed.
 
@@ -376,8 +376,8 @@ At a 4× daily frequency with $T \approx 1,000$ observations per year, the signa
 provider = get_iscf_provider(mode="yfinance")
 data: ISCFMarketData = provider.fetch(start="2018-01-01", end="2024-12-31")
 
-# DAY 1 AT HLS (zero code change):
-provider = get_iscf_provider(mode="hls", api_key=os.environ["HLS_API_KEY"])
+# DAY 1 AT Proprietary Trading Firm (zero code change):
+provider = get_iscf_provider(mode="proprietary", api_key=os.environ["HLS_API_KEY"])
 data: ISCFMarketData = provider.fetch(start="2018-01-01", end="2024-12-31")
 ```
 
@@ -444,7 +444,7 @@ Policy: Moving Block Bootstrap (block=20) across regime split → structural sta
 
 [🔝 Back to Top](#-table-of-contents)
 
-HLS Trading rebalances ~4× daily. The rebalancing engine runs at each session:
+Proprietary Trading rebalances ~4× daily. The rebalancing engine runs at each session:
 
 | Session | UTC Time | Market Context |
 |---------|---------|---------------|
@@ -649,7 +649,7 @@ STATUS  TITLE                  WORKFLOW            BRANCH              EVENT    
 
 ### Description of the actions
 
-**4× daily cron schedule** mirrors HLS Trading's rebalancing frequency:
+**4× daily cron schedule** mirrors Proprietary Trading Firm 's rebalancing frequency:
 
 | UTC Time | Session | GitHub Actions Cron |
 |---------|---------|---------------------|

@@ -6,7 +6,7 @@
 \onehalfspacing
 \setlength{\headheight}{15pt}
 \pagestyle{fancy}\fancyhf{}
-\rhead{HLS Trading — Proprietary Research}\lhead{ISCF \& MGD: Systematic Macro Alpha}
+\rhead{Properietary Trading Firm — Research}\lhead{ISCF \& MGD: Systematic Macro Alpha}
 \cfoot{\thepage}
 
 \lstset{basicstyle=\ttfamily\small,breaklines=true,frame=single,
@@ -27,17 +27,17 @@
   Real-Time Macro Growth Divergence (MGD)}\\[0.8em]
   \large From First Principles: Physical Markets, Rational Expectations,\\
   Causal Inference, and Statistical Validation\\[1em]
-  \normalsize HLS Trading — Quantitative Research Dissertation\\
+  \normalsize Properietary Trading Firm — Quantitative Research Dissertation\\
   \normalsize Mid-to-High Frequency Systematic Macro · 4$\times$ Daily Rebalancing
 }
-\author{HLS Trading Quantitative Research Pod}
+\author{Properietary Trading Firm Quantitative Research Pod}
 \date{2025}
 
 \begin{document}
 \maketitle\thispagestyle{fancy}
 
 \begin{abstract}
-We develop and validate two systematic macro alpha signals for deployment at HLS Trading's mid-to-high frequency rebalancing cadence ($\sim$4$\times$ daily across FX, commodities, futures, and rates). Both signals are structurally orthogonal to the canonical baseline factors (trend, momentum, carry) through Gram-Schmidt residualisation, and both pass a rigorous three-step causal validation framework before receiving capital allocation.
+We develop and validate two systematic macro alpha signals for deployment at Proprietary Trading Firm 's mid-to-high frequency rebalancing cadence ($\sim$4$\times$ daily across FX, commodities, futures, and rates). Both signals are structurally orthogonal to the canonical baseline factors (trend, momentum, carry) through Gram-Schmidt residualisation, and both pass a rigorous three-step causal validation framework before receiving capital allocation.
 
 \textbf{Signal 1 — ISCF (Idiosyncratic Supply Chain Flow):} Derived from the convenience yield theory of commodity storage (Working 1949; Fama \& French 1988), the signal exploits the volatility-normalised basis as a measure of physical inventory constraints in Metals and Energy futures. The idiosyncratic component is isolated from macro-beta by a $(1-\beta^{\text{macro}})$ scaling factor.
 
@@ -53,10 +53,10 @@ The research methodology follows a five-step falsification protocol (hypothesis-
 \newpage\tableofcontents\newpage
 
 %% =========================================================================
-\section{Introduction: The Alpha Orthogonality Problem at HLS Trading}
+\section{Introduction: The Alpha Orthogonality Problem at Proprietary Trading Firm }
 \label{sec:intro}
 
-HLS Trading operates systematic macro across FX, commodities, futures, and rates at mid-to-high frequency, rebalancing approximately four times per day. The research culture is statistics-first: rigorous thinking over technique, genuine predictive content separated from noise with academic rigour.
+Properietary Trading Firm operates systematic macro across FX, commodities, futures, and rates at mid-to-high frequency, rebalancing approximately four times per day. The research culture is statistics-first: rigorous thinking over technique, genuine predictive content separated from noise with academic rigour.
 
 \subsection{The Fundamental Law and Breadth Decomposition}
 
@@ -67,7 +67,7 @@ Grinold's \citeyearpar{grinold1989} Fundamental Law of Active Management states:
 \end{equation}
 where $\text{IC} = \mathbb{E}[\text{corr}(\hat{r}_i, r_i)]$ and Breadth counts the number of independent bets per period. At HLS's 4$\times$ daily frequency:
 \begin{equation}
-  \text{Breadth}_{\text{HLS}} = 4 \times 252 \times N_{\text{assets}} = 4,032 \cdot N
+  \text{Breadth}_{\text{Properietary-Trading-Firm}} = 4 \times 252 \times N_{\text{assets}} = 4,032 \cdot N
   \label{eq:breadth}
 \end{equation}
 Adding $K$ mutually orthogonal signals multiplies breadth without requiring higher IC:
@@ -194,7 +194,7 @@ For FX pair $i$ at time $t$:
 \end{equation}
 with $(w^{\text{PMI}}, w^{\text{CPI}}, w^{\text{EMP}}) = (0.40, 0.30, 0.30)$, $\sum w_k = 1$.
 
-Each component $\Delta_{i,t}^k = (\text{actual}_{i,t}^k - \text{consensus}_{i,t}^k)/\sigma_{\text{hist},i}^k$ is a standardised surprise. In the free-data tier, consensus is proxied as the rolling $H$-period mean; in the HLS proprietary tier, Bloomberg consensus data is used directly.
+Each component $\Delta_{i,t}^k = (\text{actual}_{i,t}^k - \text{consensus}_{i,t}^k)/\sigma_{\text{hist},i}^k$ is a standardised surprise. In the free-data tier, consensus is proxied as the rolling $H$-period mean; in the Proprietary Trading Firm tier, Bloomberg consensus data is used directly.
 
 The weight asymmetry $w^{\text{PMI}} > w^{\text{CPI}} \approx w^{\text{EMP}}$ reflects the empirical finding of \citet{andersen2003} that manufacturing PMI and activity indicators have higher FX impact than inflation prints in the post-2010 environment of anchored inflation expectations.
 
@@ -327,7 +327,7 @@ Final signal strength: $\alpha_t^{\text{final}} = \hat{\alpha}_t \cdot \gamma$.
 \section{Statistical Validation: Falsification Protocol}
 \label{sec:falsification}
 
-HLS Trading's research culture demands a pre-registered falsification approach. We adopt the five-step protocol:
+Properietary Trading Firm's research culture demands a pre-registered falsification approach. We adopt the five-step protocol:
 
 \begin{enumerate}
   \item \textbf{Economic rationale first} (Sections \ref{sec:iscf}--\ref{sec:mgd}): physical market microstructure and rational expectations theory articulated before any data analysis.
@@ -462,7 +462,7 @@ At 4$\times$ daily frequency with $T \approx 1,000$ daily observations per year:
 \small
 \begin{tabular}{p{3.5cm}p{2.5cm}p{5cm}p{2.5cm}}
 \toprule
-Method & Effective $T$ needed & Justification & Status at HLS \\
+Method & Effective $T$ needed & Justification & Status at Properietary Trading Firm \\
 \midrule
 OLS / Lasso & $> 30 \times p$ & Sparse macro environments with $p \ll N$ & \textbf{Primary} \\
 Gradient-boosted trees & $> 500$ & Non-linear threshold effects (e.g., inventory $< I^*$) & Month 3+ \\
@@ -495,7 +495,7 @@ The MBB (Section \ref{sec:causal}) makes no distributional assumptions beyond st
 
 \begin{table}[h]
 \centering
-\caption{HLS Trading: Accelerated Six-Month Research and Deployment Plan}
+\caption{Properietary Trading Firm: Accelerated Six-Month Research and Deployment Plan}
 \small
 \begin{tabular}{p{1.3cm}p{3.2cm}p{6.5cm}p{2.3cm}}
 \toprule
@@ -527,13 +527,13 @@ Month & Milestone & Tasks & KPI Gate \\
 \section{Conclusion}
 \label{sec:conclusion}
 
-We have developed ISCF and MGD as two systematically orthogonal, causally validated macro alpha signals designed for HLS Trading's mid-to-high frequency, statistics-first research culture. The contributions are:
+We have developed ISCF and MGD as two systematically orthogonal, causally validated macro alpha signals designed for Properietary Trading Firm's mid-to-high frequency, statistics-first research culture. The contributions are:
 
 \begin{enumerate}
   \item \textbf{Economic foundations:} Both signals are derived from first-principles theories (theory of storage, rational expectations) with specific falsifiable predictions that do not depend on data mining.
   \item \textbf{Mathematical rigour:} Gram-Schmidt orthogonalisation guarantees zero in-sample correlation with baseline factors. MAD-based robust z-scoring maintains signal stability during commodity squeezes. Gaussian rank normalisation ensures portfolio-optimiser compatibility.
   \item \textbf{Causal validation:} The three-step framework (VARX Granger + CMI + DoWhy placebo/policy) separates genuine causal alpha from beta-proxy signals, with causal confidence $\gamma$ directly entering capital allocation.
-  \item \textbf{Production readiness:} The plugin data architecture (Design-by-Contract ABCs) enables a zero-code-change transition from yfinance free data to HLS proprietary infrastructure. The 4× daily rebalancing engine, pre-agreed kill criteria, and GitHub Actions cron schedule ensure Day-1 production capability.
+  \item \textbf{Production readiness:} The plugin data architecture (Design-by-Contract ABCs) enables a zero-code-change transition from yfinance free data to Properietary Trading Firm's infrastructure. The 4× daily rebalancing engine, pre-agreed kill criteria, and GitHub Actions cron schedule ensure Day-1 production capability.
 \end{enumerate}
 
 %% =========================================================================

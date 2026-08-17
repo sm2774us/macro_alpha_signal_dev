@@ -1,4 +1,4 @@
-# HLS Trading — Quantitative Alpha Research Playbook
+# Properietary Trading Firm — Quantitative Alpha Research Playbook
 ### ISCF & MGD: Systematic Macro Alpha from First Principles
 #### Two Orthogonal Signals · Causal Validation · Production-Grade Implementation
 
@@ -103,7 +103,7 @@ FUNDAMENTAL LAW — INTUITION
   This is why orthogonality is not a nice-to-have — it is the maths.
 ```
 
-At HLS's 4× daily frequency across N assets:
+At Properietary Trading Firm's 4× daily frequency across N assets:
 
 $$\text{Breadth}_\text{HLS} = 4 \times 252 \times N_\text{assets}$$
 
@@ -542,7 +542,7 @@ Any systematic divergence between realised macro outcomes and priced-in forecast
 **Andersen et al. (2003)** provide the empirical foundation:
 - Macro data releases (NFP, CPI, PMI) generate significant FX price responses **within 5 minutes** of publication
 - Partial adjustment completes over **1–6 hours**
-- At HLS's 4× daily rebalancing cadence, this 1–6 hour window falls squarely within a holding period
+- At Properietary Trading Firm's 4× daily rebalancing cadence, this 1–6 hour window falls squarely within a holding period
 
 ```
 MACRO ANNOUNCEMENT ADJUSTMENT TIMELINE
@@ -554,7 +554,7 @@ MACRO ANNOUNCEMENT ADJUSTMENT TIMELINE
              │  20-40%   │  40-60%   │  60-80%   │  ~100%    │
              │  of move  │  of move  │  of move  │  of move  │
 
-  HLS 4x rebalancing sessions:
+  Properietary Trading Firm 4x rebalancing sessions:
   ╔═══════════╗  ╔════════╗  ╔═════════╗  ╔══════════╗
   ║  ASIA     ║  ║LONDON  ║  ║ NY OPEN ║  ║ NY CLOSE ║
   ╚═══════════╝  ╚════════╝  ╚═════════╝  ╚══════════╝
@@ -699,7 +699,7 @@ The free-tier implementation uses FRED macro series proxied via `pandas-dataread
 # Free tier:
 provider = YFinanceMGDProvider()   # FRED proxies
 
-# HLS proprietary (Day 1 swap — SAME INTERFACE):
+# Properietary Trading Firm (Day 1 swap — SAME INTERFACE):
 provider = HLSMGDProvider(api_key=os.environ["HLS_API_KEY"])
 
 # All downstream code unchanged:
@@ -1027,7 +1027,7 @@ BONFERRONI vs BH — WHEN EACH IS APPROPRIATE
   discovery) ≤ α)                     all discoveries])
   Use when: small M, high cost of     Use when: larger M, signal discovery
   any false positive (e.g., M=2)      matters more than strict control
-  HLS: M=2 → α* = 0.025              HLS: Same M=2, but BH reported
+  Properietary Trading Firm: M=2 → α* = 0.025              HLS: Same M=2, but BH reported
                                       alongside for audit trail
 ```
 
@@ -1363,7 +1363,7 @@ hls_trading_six_month_plan/
 Every empirical constant used across the codebase lives here. The dissertation's parameters map directly:
 
 ```python
-# constants.py — HLS Branch Signal Constants
+# constants.py — Properietary Trading Firm Branch Signal Constants
 ISCF_MAX_BASIS_ZSCORE: float = 4.0          # z_max winsorisation cap (§2.2.2)
 ISCF_VOL_NORMALISATION_WINDOW: int = 20     # H = 20 in σ^rv (§2.2.1)
 MGD_PMI_WEIGHT: float = 0.40                # w^PMI (§3.2.1)
@@ -1655,7 +1655,7 @@ Max ADV participation      ≤ 10%               ADV_PARTICIPATION_CAP
 ---
 ---
 
-*HLS Trading — Quantitative Research Pod · 2025*
+*Quantitative Research Pod · 2025*
 *ISCF & MGD: Systematic Macro Alpha from First Principles*
 
 ---

@@ -1,4 +1,4 @@
-name: CI — HLS Alpha Engine (ISCF + MGD + Causal Stack)
+name: CI — Proprietary Trading Firm — Alpha Engine (ISCF + MGD + Causal Stack)
 
 on:
   push:

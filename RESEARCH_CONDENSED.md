@@ -1,6 +1,5 @@
 # 🎯 RESEARCH CONDENSED — Interview Playbook
 ### ISCF & MGD: Two Orthogonal Systematic Macro Alpha Signals
-#### Shaikat Majumdar · HLS Trading Quantitative Researcher Interview
 
 > **Purpose:** Dissertation-defence framing — sound fundamentals, practitioner instinct, honest
 > accounting of what works, what breaks, and how to harden it in production.
@@ -796,6 +795,3 @@ session. The residual signal is then marked as $\gamma = 0.30$ until VIF normali
 | FLOAM | $\text{IR} = \text{IC}\cdot\sqrt{K\cdot\text{Breadth}_{\text{single}}}$ | Value of orthogonal breadth |
 
 ---
-
-*Shaikat Majumdar · HLS Trading Interview Preparation · June 2026*
-*ISCF & MGD: Systematic Macro Alpha from First Principles*

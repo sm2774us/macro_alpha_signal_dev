@@ -1,4 +1,4 @@
-# HLS Trading — 10 Orthogonal Alpha Signals
+# 10 Orthogonal Alpha Signals
 ### Prepared by Shaikat Majumdar | Interview Preparation Package
 
 > **Context:** Additive to ISCF and MGD already in the engine. All 10 signals pass Gram-Schmidt ⊥ test vs. Carry, Trend, and Momentum. Each is grounded in personal implementation history across Millburn, Highbridge, and Balyasny.

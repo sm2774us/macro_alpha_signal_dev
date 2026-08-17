@@ -1,4 +1,3 @@
-# Copyright 2025 Citadel Systematic Macro Pod
 # citadel_alpha/constants.py
 # Google Python Style Guide.
 
@@ -158,7 +157,7 @@ MAX_VIF_ORTHOGONALITY: float = 5.0
 """Maximum VIF allowed per signal (multicollinearity gate)."""
 
 # ---------------------------------------------------------------------------
-# HLS Branch — ISCF & MGD Signal Constants
+# Proprietary Trading Firm — Branch — ISCF & MGD Signal Constants
 # ---------------------------------------------------------------------------
 
 # ISCF — Idiosyncratic Supply Chain Flow (Metals/Energy)
@@ -175,9 +174,14 @@ ISCF_MAX_BASIS_ZSCORE: float = 4.0
 """Winsorisation cap on basis z-score to prevent blow-up."""
 
 COMMODITY_ASSETS: tuple[str, ...] = (
-    "WTI_CL", "BRENT_CO", "NGAS_NG",
-    "COPPER_HG", "GOLD_GC", "SILVER_SI",
-    "ALUMINIUM_LA", "ZINC_LX",
+    "WTI_CL",
+    "BRENT_CO",
+    "NGAS_NG",
+    "COPPER_HG",
+    "GOLD_GC",
+    "SILVER_SI",
+    "ALUMINIUM_LA",
+    "ZINC_LX",
 )
 
 # MGD — Real-Time Macro Growth Divergence (FX)
@@ -200,8 +204,14 @@ MGD_EMPLOYMENT_WEIGHT: float = 0.30
 """Weight on employment surprise component."""
 
 FX_ASSETS: tuple[str, ...] = (
-    "EURUSD", "GBPUSD", "USDJPY", "USDCHF",
-    "AUDUSD", "USDCAD", "NOKUSD", "SEKUSD",
+    "EURUSD",
+    "GBPUSD",
+    "USDJPY",
+    "USDCHF",
+    "AUDUSD",
+    "USDCAD",
+    "NOKUSD",
+    "SEKUSD",
 )
 
 # Causal Validation Framework

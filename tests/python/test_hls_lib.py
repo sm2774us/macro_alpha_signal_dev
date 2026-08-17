@@ -1,4 +1,3 @@
-# Copyright 2025 HLS Trading / Citadel Systematic Macro Pod
 # tests/python/test_hls_lib.py
 # Google Python Style Guide.
 
@@ -24,10 +23,10 @@ from numpy.testing import assert_allclose
 from citadel_alpha import causal, constants as C, falsification as fal
 from citadel_alpha import data_hls, signals_hls
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="module")
 def commodity_panel():
@@ -42,26 +41,40 @@ def fx_panel():
 @pytest.fixture(scope="module")
 def iscf_result(commodity_panel):
     p = commodity_panel
-    baseline = np.column_stack([p.trend_returns[50], p.momentum_returns[50], p.carry_returns[50]])
+    baseline = np.column_stack(
+        [p.trend_returns[50], p.momentum_returns[50], p.carry_returns[50]]
+    )
     return signals_hls.compute_iscf(
-        p.spot[50], p.deferred[50], p.rvol[50],
-        p.forward_returns[50], p.macro_beta[50], baseline,
+        p.spot[50],
+        p.deferred[50],
+        p.rvol[50],
+        p.forward_returns[50],
+        p.macro_beta[50],
+        baseline,
     )
 
 
 @pytest.fixture(scope="module")
 def mgd_result(fx_panel):
     p = fx_panel
-    baseline = np.column_stack([p.trend_returns[50], p.momentum_returns[50], p.carry_returns[50]])
+    baseline = np.column_stack(
+        [p.trend_returns[50], p.momentum_returns[50], p.carry_returns[50]]
+    )
     return signals_hls.compute_mgd(
-        p.pmi_surprise[50], p.cpi_surprise[50], p.emp_surprise[50],
-        p.fwd_expectation[50], p.roll_std[50], p.forward_returns[50], baseline,
+        p.pmi_surprise[50],
+        p.cpi_surprise[50],
+        p.emp_surprise[50],
+        p.fwd_expectation[50],
+        p.roll_std[50],
+        p.forward_returns[50],
+        baseline,
     )
 
 
 # ---------------------------------------------------------------------------
 # ISCF Signal Tests
 # ---------------------------------------------------------------------------
+
 
 class TestISCF:
     """H0: ISCF raw scores are all zero (no signal). H1: |mean| > 0."""
@@ -94,7 +107,9 @@ class TestISCF:
         rvol = p.rvol[50].copy()
         ret = p.forward_returns[50].copy()
         high_beta = np.ones(n)
-        baseline = np.column_stack([p.trend_returns[50], p.momentum_returns[50], p.carry_returns[50]])
+        baseline = np.column_stack(
+            [p.trend_returns[50], p.momentum_returns[50], p.carry_returns[50]]
+        )
         res = signals_hls.compute_iscf(spot, deferred, rvol, ret, high_beta, baseline)
         # With full macro beta, idiosyncratic component ≈ 0
         assert np.all(np.abs(res.raw_score) < 1e-6)
@@ -103,7 +118,7 @@ class TestISCF:
         """Steep backwardation (spot >> deferred) → positive ISCF score."""
         n = commodity_panel.n
         spot = np.ones(n) * 100.0
-        deferred = np.ones(n) * 90.0   # Backwardation: spot > deferred
+        deferred = np.ones(n) * 90.0  # Backwardation: spot > deferred
         rvol = np.ones(n) * 0.20
         ret = np.zeros(n)
         beta = np.zeros(n)
@@ -115,18 +130,25 @@ class TestISCF:
         """ISCF scores must have lower |ρ| with carry than raw basis."""
         p = commodity_panel
         n = p.n
-        baseline = np.column_stack([
-            p.trend_returns[50], p.momentum_returns[50], p.carry_returns[50]
-        ])
+        baseline = np.column_stack(
+            [p.trend_returns[50], p.momentum_returns[50], p.carry_returns[50]]
+        )
         res = signals_hls.compute_iscf(
-            p.spot[50], p.deferred[50], p.rvol[50],
-            p.forward_returns[50], p.macro_beta[50], baseline,
+            p.spot[50],
+            p.deferred[50],
+            p.rvol[50],
+            p.forward_returns[50],
+            p.macro_beta[50],
+            baseline,
         )
         carry = p.carry_returns[50]
-        corr_raw = abs(float(np.corrcoef(
-            (p.spot[50] - p.deferred[50]) / np.maximum(p.rvol[50], 1e-8),
-            carry
-        )[0, 1]))
+        corr_raw = abs(
+            float(
+                np.corrcoef(
+                    (p.spot[50] - p.deferred[50]) / np.maximum(p.rvol[50], 1e-8), carry
+                )[0, 1]
+            )
+        )
         corr_orth = abs(float(np.corrcoef(res.raw_score, carry)[0, 1]))
         assert corr_orth <= corr_raw + 0.05  # Orthogonality reduces correlation
 
@@ -134,6 +156,7 @@ class TestISCF:
 # ---------------------------------------------------------------------------
 # MGD Signal Tests
 # ---------------------------------------------------------------------------
+
 
 class TestMGD:
     """H0: MGD score is purely driven by carry/momentum. H1: orthogonal component exists."""
@@ -153,16 +176,17 @@ class TestMGD:
     def test_surprise_weights_sum_to_one(self):
         assert_allclose(
             C.MGD_PMI_WEIGHT + C.MGD_INFLATION_WEIGHT + C.MGD_EMPLOYMENT_WEIGHT,
-            1.0, atol=1e-9
+            1.0,
+            atol=1e-9,
         )
 
     def test_positive_surprise_above_fwd_positive_score(self):
         """Large positive surprise vs. low forward expectation → positive MGD."""
         n = 8
-        pmi = np.ones(n) * 2.0     # Strong positive surprise
+        pmi = np.ones(n) * 2.0  # Strong positive surprise
         cpi = np.ones(n) * 1.0
         emp = np.ones(n) * 1.5
-        fwd = np.zeros(n)           # Zero priced-in expectation
+        fwd = np.zeros(n)  # Zero priced-in expectation
         roll_std = np.ones(n) * 1.0
         ret = np.zeros(n)
         baseline = np.zeros((n, 3))
@@ -184,6 +208,7 @@ class TestMGD:
 # ---------------------------------------------------------------------------
 # Gram-Schmidt Orthogonalization
 # ---------------------------------------------------------------------------
+
 
 class TestGramSchmidt:
     def test_residual_orthogonal_to_baseline(self):
@@ -213,6 +238,7 @@ class TestGramSchmidt:
 # ---------------------------------------------------------------------------
 # Causal Stack Tests
 # ---------------------------------------------------------------------------
+
 
 class TestGrangerCausality:
     def test_genuine_causal_signal_passes(self):
@@ -257,7 +283,9 @@ class TestConditionalIndependence:
         confounder = rng.normal(0, 1, t)
         signal = 0.95 * confounder + rng.normal(0, 0.01, t)  # Almost pure beta
         returns = 0.3 * confounder + rng.normal(0, 1, t)
-        result = causal.conditional_independence_test(signal, returns, confounder.reshape(-1, 1))
+        result = causal.conditional_independence_test(
+            signal, returns, confounder.reshape(-1, 1)
+        )
         assert result.alpha_retained_fraction < 0.5
 
     def test_independent_signal_passes_cmi(self):
@@ -265,9 +293,11 @@ class TestConditionalIndependence:
         rng = default_rng(21)
         t = 300
         confounder = rng.normal(0, 1, t)
-        signal = rng.normal(0, 1, t)        # Independent of confounder
+        signal = rng.normal(0, 1, t)  # Independent of confounder
         returns = 0.5 * signal + 0.1 * confounder + rng.normal(0, 0.5, t)
-        result = causal.conditional_independence_test(signal, returns, confounder.reshape(-1, 1))
+        result = causal.conditional_independence_test(
+            signal, returns, confounder.reshape(-1, 1)
+        )
         assert result.alpha_retained_fraction > 0.3
 
 
@@ -287,7 +317,9 @@ class TestDoWhyRefutation:
         signal = rng.normal(0, 1, t)
         returns = 0.8 * signal + rng.normal(0, 0.1, t)
         result = causal.dowhy_refutation(signal, returns, n_bootstrap=100)
-        assert result.placebo_passes, f"Expected placebo pass, got p={result.placebo_p_value:.4f}"
+        assert (
+            result.placebo_passes
+        ), f"Expected placebo pass, got p={result.placebo_p_value:.4f}"
 
     def test_pure_noise_signal_fails_placebo(self):
         """Signal with no causal relationship should fail placebo (p ≈ 0)."""
@@ -301,9 +333,15 @@ class TestDoWhyRefutation:
 
     def test_gamma_values(self):
         """Verify γ mapping: both pass → 0.95, one fail → 0.30, placebo fail → 0.0."""
-        result_pass = causal.DoWhyResult(0.1, 0.1, True, True, C.CAUSAL_GAMMA_HIGH, 100, 0.5, 0.0)
-        result_partial = causal.DoWhyResult(0.1, 0.01, True, False, C.CAUSAL_GAMMA_MEDIUM, 100, 0.5, 0.0)
-        result_reject = causal.DoWhyResult(0.01, 0.01, False, False, C.CAUSAL_GAMMA_REJECT, 100, 0.5, 0.0)
+        result_pass = causal.DoWhyResult(
+            0.1, 0.1, True, True, C.CAUSAL_GAMMA_HIGH, 100, 0.5, 0.0
+        )
+        result_partial = causal.DoWhyResult(
+            0.1, 0.01, True, False, C.CAUSAL_GAMMA_MEDIUM, 100, 0.5, 0.0
+        )
+        result_reject = causal.DoWhyResult(
+            0.01, 0.01, False, False, C.CAUSAL_GAMMA_REJECT, 100, 0.5, 0.0
+        )
         assert result_pass.causal_gamma == C.CAUSAL_GAMMA_HIGH
         assert result_partial.causal_gamma == C.CAUSAL_GAMMA_MEDIUM
         assert result_reject.causal_gamma == C.CAUSAL_GAMMA_REJECT
@@ -342,6 +380,7 @@ class TestCausalStack:
 # Newey-West HAC Tests
 # ---------------------------------------------------------------------------
 
+
 class TestNeweyWest:
     def test_hac_positive(self):
         rng = default_rng(50)
@@ -366,6 +405,7 @@ class TestNeweyWest:
 # Moving Block Bootstrap Tests
 # ---------------------------------------------------------------------------
 
+
 class TestMBB:
     def test_output_length(self):
         rng = default_rng(60)
@@ -387,6 +427,7 @@ class TestMBB:
 # Six-Month Plan KPI Constants Validation
 # ---------------------------------------------------------------------------
 
+
 class TestSixMonthKPIs:
     def test_walkforward_sharpe_target(self):
         assert C.WALKFORWARD_SHARPE_TARGET == 0.70
@@ -403,5 +444,6 @@ class TestSixMonthKPIs:
     def test_mgd_weights_sum_one(self):
         assert_allclose(
             C.MGD_PMI_WEIGHT + C.MGD_INFLATION_WEIGHT + C.MGD_EMPLOYMENT_WEIGHT,
-            1.0, atol=1e-9
+            1.0,
+            atol=1e-9,
         )

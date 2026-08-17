@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# Copyright 2025 HLS Trading
 # scripts/generate_kpi_report.py
 # Google Python Style Guide.
 """Generate a markdown KPI report from signal health JSON artifacts.
@@ -124,13 +123,21 @@ def generate_report(
         sr = d.get("gross_sr", 0.0)
         retire = d.get("retirement_recommended", True)
         if retire:
-            lines.append(f"- **{sig.upper()}**: 🚨 `RETIRE` — Freeze allocation. Begin new hypothesis search.")
+            lines.append(
+                f"- **{sig.upper()}**: 🚨 `RETIRE` — Freeze allocation. Begin new hypothesis search."
+            )
         elif gamma >= 0.90:
-            lines.append(f"- **{sig.upper()}**: ✅ `FULL ALLOCATION` — γ={gamma:.2f}. Maintain 4x daily rebalance.")
+            lines.append(
+                f"- **{sig.upper()}**: ✅ `FULL ALLOCATION` — γ={gamma:.2f}. Maintain 4x daily rebalance."
+            )
         elif gamma >= 0.25:
-            lines.append(f"- **{sig.upper()}**: ⚠️ `REDUCED ALLOCATION` — γ={gamma:.2f}. Cap at 50% target weight.")
+            lines.append(
+                f"- **{sig.upper()}**: ⚠️ `REDUCED ALLOCATION` — γ={gamma:.2f}. Cap at 50% target weight."
+            )
         else:
-            lines.append(f"- **{sig.upper()}**: 🚨 `SUSPEND` — γ={gamma:.2f}. Causal validation failed.")
+            lines.append(
+                f"- **{sig.upper()}**: 🚨 `SUSPEND` — γ={gamma:.2f}. Causal validation failed."
+            )
 
     lines += [
         "",
@@ -151,10 +158,18 @@ def generate_report(
         )
 
     if any_retire:
-        lines += ["", "---", "**🚨 ACTION REQUIRED: One or more signals recommend retirement. "
-                  "Review half-life and IC trends. Begin next hypothesis per 5-step falsification protocol.**"]
+        lines += [
+            "",
+            "---",
+            "**🚨 ACTION REQUIRED: One or more signals recommend retirement. "
+            "Review half-life and IC trends. Begin next hypothesis per 5-step falsification protocol.**",
+        ]
     else:
-        lines += ["", "---", "**✅ All signals healthy. Continue 4x daily rebalancing.**"]
+        lines += [
+            "",
+            "---",
+            "**✅ All signals healthy. Continue 4x daily rebalancing.**",
+        ]
 
     output.write_text("\n".join(lines))
     print(f"KPI report written: {output}")
@@ -168,7 +183,9 @@ def main() -> None:
     parser.add_argument("--commit", default="local")
     parser.add_argument("--ref", default="local")
     args = parser.parse_args()
-    generate_report(args.artifacts_dir, args.output, args.session, args.commit, args.ref)
+    generate_report(
+        args.artifacts_dir, args.output, args.session, args.commit, args.ref
+    )
 
 
 if __name__ == "__main__":

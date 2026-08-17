@@ -1,4 +1,3 @@
-# Copyright 2025 HLS Trading / Citadel Systematic Macro Pod
 # citadel_alpha/signals_hls.py
 # Google Python Style Guide.
 
@@ -16,10 +15,6 @@ Signal 2 — MGD: Real-Time Macro Growth Divergence (FX Forward Panels)
 Both signals are residualised against trend/momentum/carry via
 rolling Gram-Schmidt orthogonalization.
 
-References:
-    TWO_ALPHA_SIGNALS.txt
-    HLS_SIX_MONTH_PLAN.md §Month 2
-    QUANT_STUDY_NOTES.md §FLOAM
 """
 
 from __future__ import annotations
@@ -32,7 +27,11 @@ from numpy.typing import NDArray
 from scipy import stats
 
 from citadel_alpha import constants as C
-from citadel_alpha.signals import SignalResult, FloatArray, _gaussian_rank_normalize as _gaussian_rank_normalise
+from citadel_alpha.signals import (
+    SignalResult,
+    FloatArray,
+    _gaussian_rank_normalize as _gaussian_rank_normalise,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +69,7 @@ def gram_schmidt_residualise(
     b_c = b - b.mean(axis=0)
 
     # Drop constant/degenerate columns.
-    col_norms = np.sqrt((b_c ** 2).sum(axis=0))
+    col_norms = np.sqrt((b_c**2).sum(axis=0))
     active = col_norms > 1e-8
     if not active.any():
         return s
@@ -151,9 +150,13 @@ def compute_iscf(
     alpha_iscf = 2.0 / (C.ISCF_VOL_NORMALISATION_WINDOW + 1.0)
     smoothed = np.zeros(n)
     for k in range(n):
-        smoothed[k] = alpha_iscf * raw[k] + (1.0 - alpha_iscf) * raw[k]  # cross-sectional: no prior at t
+        smoothed[k] = (
+            alpha_iscf * raw[k] + (1.0 - alpha_iscf) * raw[k]
+        )  # cross-sectional: no prior at t
     # Use inventory-decay-weighted combination for inter-period persistence signal
-    smoothed = C.ISCF_INVENTORY_DECAY_LAMBDA * raw + (1.0 - C.ISCF_INVENTORY_DECAY_LAMBDA) * basis_z * (1.0 - beta)
+    smoothed = C.ISCF_INVENTORY_DECAY_LAMBDA * raw + (
+        1.0 - C.ISCF_INVENTORY_DECAY_LAMBDA
+    ) * basis_z * (1.0 - beta)
 
     # Gram-Schmidt residualise against trend/momentum/carry
     raw_orth = gram_schmidt_residualise(smoothed, baseline_factors)

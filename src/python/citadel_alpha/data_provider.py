@@ -1,4 +1,3 @@
-# Copyright 2025 HLS Trading
 # citadel_alpha/data_provider.py — Design-by-Contract data provider abstraction.
 # Google Python Style Guide.
 
@@ -6,7 +5,7 @@
 
 Design-by-Contract (DbC) principle: the abstract base classes define the
 interface contract that any provider must satisfy. Free-tier providers
-(yfinance, FRED via pandas-datareader) are used now. When HLS Trading
+(yfinance, FRED via pandas-datareader) are used now. When Proprietary Trading Firm
 infrastructure is available, drop in HLS_ISCFProvider / HLS_MGDProvider
 implementing the same ABCs without changing any signal or backtest code.
 
@@ -16,7 +15,7 @@ Usage:
     provider = YFinanceISCFProvider()
     data = provider.fetch(start="2015-01-01", end="2024-12-31")
 
-    # HLS infra (plug-in replacement — same interface)
+    # Proprietary Trading Firm — infra (plug-in replacement — same interface)
     from citadel_alpha.data_provider import HLSISCFProvider  # Future
     provider = HLSISCFProvider(api_key=os.environ["HLS_API_KEY"])
     data = provider.fetch(start="2015-01-01", end="2024-12-31")
@@ -58,14 +57,14 @@ class ISCFMarketData:
         - dates: pd.DatetimeIndex of length T.
     """
 
-    spot: FloatArray           # Front-month futures price (T, N)
-    deferred: FloatArray       # Deferred contract price (T, N)
-    rvol: FloatArray           # Annualised realised vol 20d (T, N)
-    macro_beta: FloatArray     # Market-beta to macro index (T, N)
-    forward_returns: FloatArray# Next-period returns (T, N)
-    trend_baseline: FloatArray # 12-1 momentum baseline (T, N)
+    spot: FloatArray  # Front-month futures price (T, N)
+    deferred: FloatArray  # Deferred contract price (T, N)
+    rvol: FloatArray  # Annualised realised vol 20d (T, N)
+    macro_beta: FloatArray  # Market-beta to macro index (T, N)
+    forward_returns: FloatArray  # Next-period returns (T, N)
+    trend_baseline: FloatArray  # 12-1 momentum baseline (T, N)
     momentum_baseline: FloatArray  # 1-month momentum baseline (T, N)
-    carry_baseline: FloatArray # Roll yield carry baseline (T, N)
+    carry_baseline: FloatArray  # Roll yield carry baseline (T, N)
     assets: tuple[str, ...]
     dates: pd.DatetimeIndex
 
@@ -105,7 +104,7 @@ class AbstractISCFProvider(abc.ABC):
     Concrete implementations:
         YFinanceISCFProvider  — free tier (yfinance + pandas-datareader)
         AlphaVantageISCFProvider — free tier (Alpha Vantage commodities)
-        HLSISCFProvider       — HLS proprietary (LME/CME feeds, freight)
+        HLSISCFProvider       — Proprietary Trading Firm (LME/CME feeds, freight)
     """
 
     @abc.abstractmethod
@@ -134,8 +133,9 @@ class AbstractISCFProvider(abc.ABC):
         assert np.all(np.isfinite(data.spot)), "spot contains non-finite values"
         assert np.all(data.spot > 0), "spot must be positive"
         assert np.all(data.rvol > 0), "rvol must be positive"
-        assert np.all((data.macro_beta >= 0) & (data.macro_beta <= 1)), \
-            "macro_beta must be in [0, 1]"
+        assert np.all(
+            (data.macro_beta >= 0) & (data.macro_beta <= 1)
+        ), "macro_beta must be in [0, 1]"
         t = data.spot.shape[0]
         for name, arr in [
             ("deferred", data.deferred),
@@ -152,7 +152,7 @@ class AbstractMGDProvider(abc.ABC):
     Concrete implementations:
         YFinanceMGDProvider   — free tier (yfinance FX + FRED macro)
         FREDMGDProvider       — free tier (pandas-datareader FRED)
-        HLSMGDProvider        — HLS proprietary (flash PMI, CB feeds)
+        HLSMGDProvider        — Proprietary Trading Firm (flash PMI, CB feeds)
     """
 
     @abc.abstractmethod
@@ -167,8 +167,9 @@ class AbstractMGDProvider(abc.ABC):
 
     def validate(self, data: MGDMarketData) -> None:
         """Assert contract postconditions."""
-        assert np.all(np.isfinite(data.forward_returns)), \
-            "forward_returns contains non-finite values"
+        assert np.all(
+            np.isfinite(data.forward_returns)
+        ), "forward_returns contains non-finite values"
         assert np.all(data.roll_std > 0), "roll_std must be positive"
         t = data.pmi_surprise.shape[0]
         for name, arr in [
@@ -187,14 +188,14 @@ class AbstractMGDProvider(abc.ABC):
 # Commodity ETF proxies (free via yfinance) for ISCF
 # Real implementation would use CME/LME front-month and deferred contracts.
 ISCF_PROXY_TICKERS = {
-    "WTI_CL":      ("USO",  "BNO"),   # WTI crude: USO (front) vs BNO (deferred proxy)
-    "BRENT_CO":    ("BNO",  "USO"),
-    "NGAS_NG":     ("UNG",  "BOIL"),  # Natural gas proxies
-    "COPPER_HG":   ("CPER", "JJC"),
-    "GOLD_GC":     ("GLD",  "IAU"),
-    "SILVER_SI":   ("SLV",  "SIVR"),
-    "ALUMINIUM_LA":("JJU",  "DJCI"),  # Broad commodity as deferred proxy
-    "ZINC_LX":     ("PICK", "DJCI"),  # FIXED: Replaced delisted 'ZINC' with 'PICK'
+    "WTI_CL": ("USO", "BNO"),  # WTI crude: USO (front) vs BNO (deferred proxy)
+    "BRENT_CO": ("BNO", "USO"),
+    "NGAS_NG": ("UNG", "BOIL"),  # Natural gas proxies
+    "COPPER_HG": ("CPER", "JJC"),
+    "GOLD_GC": ("GLD", "IAU"),
+    "SILVER_SI": ("SLV", "SIVR"),
+    "ALUMINIUM_LA": ("JJU", "DJCI"),  # Broad commodity as deferred proxy
+    "ZINC_LX": ("PICK", "DJCI"),  # FIXED: Replaced delisted 'ZINC' with 'PICK'
 }
 # ISCF_PROXY_TICKERS = {
 #     "WTI_CL":      ("USO",  "BNO"),   # WTI crude: USO (front) vs BNO (deferred proxy)
@@ -221,10 +222,10 @@ MGD_FX_TICKERS = {
 
 # FRED series for macro surprises (PMI proxy: ISM, CPI, NFP)
 FRED_SERIES = {
-    "ISM_MFG":   "MANEMP",   # Manufacturing employment (ISM proxy)
-    "CPI_YOY":   "CPIAUCSL",
-    "NFP":       "PAYEMS",
-    "FED_RATE":  "FEDFUNDS",
+    "ISM_MFG": "MANEMP",  # Manufacturing employment (ISM proxy)
+    "CPI_YOY": "CPIAUCSL",
+    "NFP": "PAYEMS",
+    "FED_RATE": "FEDFUNDS",
 }
 
 
@@ -259,19 +260,33 @@ class YFinanceISCFProvider(AbstractISCFProvider):
         if assets is None:
             assets = list(ISCF_PROXY_TICKERS.keys())
 
-        logger.info("YFinanceISCFProvider: fetching %d assets %s→%s", len(assets), start, end)
+        logger.info(
+            "YFinanceISCFProvider: fetching %d assets %s→%s", len(assets), start, end
+        )
 
-        all_front_tickers = [ISCF_PROXY_TICKERS[a][0] for a in assets if a in ISCF_PROXY_TICKERS]
-        all_defer_tickers = [ISCF_PROXY_TICKERS[a][1] for a in assets if a in ISCF_PROXY_TICKERS]
-        spy = yf.download("SPY", start=start, end=end, auto_adjust=True, progress=False)["Close"]
+        all_front_tickers = [
+            ISCF_PROXY_TICKERS[a][0] for a in assets if a in ISCF_PROXY_TICKERS
+        ]
+        all_defer_tickers = [
+            ISCF_PROXY_TICKERS[a][1] for a in assets if a in ISCF_PROXY_TICKERS
+        ]
+        spy = yf.download(
+            "SPY", start=start, end=end, auto_adjust=True, progress=False
+        )["Close"]
 
         front_data = yf.download(
-            list(set(all_front_tickers)), start=start, end=end,
-            auto_adjust=True, progress=False
+            list(set(all_front_tickers)),
+            start=start,
+            end=end,
+            auto_adjust=True,
+            progress=False,
         )["Close"]
         defer_data = yf.download(
-            list(set(all_defer_tickers)), start=start, end=end,
-            auto_adjust=True, progress=False
+            list(set(all_defer_tickers)),
+            start=start,
+            end=end,
+            auto_adjust=True,
+            progress=False,
         )["Close"]
 
         if isinstance(front_data, pd.Series):
@@ -280,7 +295,9 @@ class YFinanceISCFProvider(AbstractISCFProvider):
             defer_data = defer_data.to_frame(name=all_defer_tickers[0])
 
         # Align all to common dates
-        common_idx = front_data.index.intersection(defer_data.index).intersection(spy.index)
+        common_idx = front_data.index.intersection(defer_data.index).intersection(
+            spy.index
+        )
         front_data = front_data.reindex(common_idx).ffill().bfill()
         defer_data = defer_data.reindex(common_idx).ffill().bfill()
         spy_aligned = spy.reindex(common_idx).ffill().bfill()
@@ -297,8 +314,10 @@ class YFinanceISCFProvider(AbstractISCFProvider):
         mom_bl = np.zeros((t, n))
         carry_bl = np.zeros((t, n))
 
-        #spy_ret = spy_aligned.pct_change().fillna(0).values
-        spy_ret = spy_aligned.pct_change().fillna(0).values.flatten()# added .flatten()
+        # spy_ret = spy_aligned.pct_change().fillna(0).values
+        spy_ret = (
+            spy_aligned.pct_change().fillna(0).values.flatten()
+        )  # added .flatten()
 
         for j, asset in enumerate(assets):
             if asset not in ISCF_PROXY_TICKERS:
@@ -324,23 +343,27 @@ class YFinanceISCFProvider(AbstractISCFProvider):
 
             # Realised vol: 20-day rolling annualised
             for i in range(20, t):
-                rvol[i, j] = float(np.std(ret[i - 20: i], ddof=1)) * np.sqrt(252)
+                rvol[i, j] = float(np.std(ret[i - 20 : i], ddof=1)) * np.sqrt(252)
             rvol[:20, j] = max(float(np.std(ret[:20], ddof=1)), 1e-4) * np.sqrt(252)
 
             # Macro beta: 60-day rolling OLS vs SPY
             for i in range(60, t):
-                r_chunk = ret[i - 60: i]
-                s_chunk = spy_ret[i - 60: i]
+                r_chunk = ret[i - 60 : i]
+                s_chunk = spy_ret[i - 60 : i]
                 denom = float(np.dot(s_chunk, s_chunk))
                 if denom > 1e-10:
-                    macro_beta[i, j] = float(np.clip(np.dot(r_chunk, s_chunk) / denom, 0, 1))
+                    macro_beta[i, j] = float(
+                        np.clip(np.dot(r_chunk, s_chunk) / denom, 0, 1)
+                    )
 
             # Baselines: trend (12-1 mom), momentum (1m), carry (roll yield proxy)
             for i in range(252, t):
-                trend_bl[i, j] = float(np.sum(ret[i - 252: i - 21]))
+                trend_bl[i, j] = float(np.sum(ret[i - 252 : i - 21]))
             for i in range(21, t):
-                mom_bl[i, j] = float(np.sum(ret[i - 21: i]))
-            carry_bl[:, j] = (spot[:, j] - deferred[:, j]) / np.maximum(spot[:, j], 1e-8)
+                mom_bl[i, j] = float(np.sum(ret[i - 21 : i]))
+            carry_bl[:, j] = (spot[:, j] - deferred[:, j]) / np.maximum(
+                spot[:, j], 1e-8
+            )
 
         data = ISCFMarketData(
             spot=np.maximum(spot, 1e-8),
@@ -450,8 +473,9 @@ class YFinanceMGDProvider(AbstractMGDProvider):
         logger.info("YFinanceMGDProvider: fetching FX panel %s→%s", start, end)
 
         fx_tickers = [MGD_FX_TICKERS.get(a, f"{a}=X") for a in assets]
-        fx_data = yf.download(fx_tickers, start=start, end=end,
-                              auto_adjust=True, progress=False)["Close"]
+        fx_data = yf.download(
+            fx_tickers, start=start, end=end, auto_adjust=True, progress=False
+        )["Close"]
         if isinstance(fx_data, pd.Series):
             fx_data = fx_data.to_frame(name=fx_tickers[0])
         fx_data = fx_data.ffill().bfill()
@@ -476,10 +500,14 @@ class YFinanceMGDProvider(AbstractMGDProvider):
                     value_col_name = s_df.columns[1]
 
                     # Convert to datetime index safely using pd.Index to avoid .iloc type alignment errors
-                    s_df.index = pd.Index(pd.to_datetime(s_df[date_col_name], errors='coerce'))
+                    s_df.index = pd.Index(
+                        pd.to_datetime(s_df[date_col_name], errors="coerce")
+                    )
 
                     # Ensure data numeric value type casting (converts placeholders like '.' to NaN)
-                    s_df[value_col_name] = pd.to_numeric(s_df[value_col_name], errors='coerce')
+                    s_df[value_col_name] = pd.to_numeric(
+                        s_df[value_col_name], errors="coerce"
+                    )
                     s = s_df[value_col_name].squeeze()
 
                     # Reindex and forward-fill align to framework timeline
@@ -525,9 +553,9 @@ class YFinanceMGDProvider(AbstractMGDProvider):
             fwd_ret[:, j] = np.roll(ret, -1)
             fwd_ret[-1, j] = 0.0
             for i in range(252, t):
-                trend_bl[i, j] = float(np.sum(ret[i - 252: i - 21]))
+                trend_bl[i, j] = float(np.sum(ret[i - 252 : i - 21]))
             for i in range(21, t):
-                mom_bl[i, j] = float(np.sum(ret[i - 21: i]))
+                mom_bl[i, j] = float(np.sum(ret[i - 21 : i]))
             # Carry proxy: interest rate differential (use FED rate as base)
             if "FED_RATE" in fred_data:
                 carry_bl[:, j] = fred_data["FED_RATE"].values * 0.01
@@ -544,7 +572,7 @@ class YFinanceMGDProvider(AbstractMGDProvider):
         # Rolling std (60-day)
         roll_std = np.ones((t, n)) * 0.1
         for i in range(60, t):
-            chunk = composite[i - 60: i]
+            chunk = composite[i - 60 : i]
             s = np.std(chunk, axis=0, ddof=1)
             roll_std[i] = np.where(s < 1e-8, 0.1, s)
 
@@ -566,12 +594,12 @@ class YFinanceMGDProvider(AbstractMGDProvider):
 
 
 # ---------------------------------------------------------------------------
-# HLS proprietary provider stubs (plug-in replacements — implement on Day 1)
+# Proprietary Trading Firm provider stubs (plug-in replacements — implement on Day 1)
 # ---------------------------------------------------------------------------
 
 
 class HLSISCFProvider(AbstractISCFProvider):
-    """HLS proprietary ISCF provider: LME/CME prompt-date spreads + freight.
+    """Proprietary Trading Firm ISCF provider: LME/CME prompt-date spreads + freight.
 
     PLUG-IN REPLACEMENT for YFinanceISCFProvider.
     Implements identical AbstractISCFProvider contract.
@@ -600,7 +628,7 @@ class HLSISCFProvider(AbstractISCFProvider):
 
 
 class HLSMGDProvider(AbstractMGDProvider):
-    """HLS proprietary MGD provider: flash PMIs + CB real-time feeds.
+    """Proprietary Trading Firm MGD provider: flash PMIs + CB real-time feeds.
 
     PLUG-IN REPLACEMENT for YFinanceMGDProvider.
     Replace the free-tier FRED proxies with:
@@ -636,7 +664,7 @@ def get_iscf_provider(mode: str = "yfinance", **kwargs: object) -> AbstractISCFP
     """Factory: return the appropriate ISCF data provider.
 
     Args:
-        mode: "yfinance" | "hls"
+        mode: "yfinance" | "proprietary"
         **kwargs: Passed to provider constructor.
 
     Returns:
@@ -644,10 +672,12 @@ def get_iscf_provider(mode: str = "yfinance", **kwargs: object) -> AbstractISCFP
     """
     providers = {
         "yfinance": YFinanceISCFProvider,
-        "hls": HLSISCFProvider,
+        "proprietary": HLSISCFProvider,
     }
     if mode not in providers:
-        raise ValueError(f"Unknown ISCF provider mode: {mode!r}. Choose from {list(providers)}")
+        raise ValueError(
+            f"Unknown ISCF provider mode: {mode!r}. Choose from {list(providers)}"
+        )
     return providers[mode](**kwargs)  # type: ignore[arg-type]
 
 
@@ -655,7 +685,7 @@ def get_mgd_provider(mode: str = "yfinance", **kwargs: object) -> AbstractMGDPro
     """Factory: return the appropriate MGD data provider.
 
     Args:
-        mode: "yfinance" | "hls"
+        mode: "yfinance" | "proprietary"
         **kwargs: Passed to provider constructor.
 
     Returns:
@@ -663,8 +693,10 @@ def get_mgd_provider(mode: str = "yfinance", **kwargs: object) -> AbstractMGDPro
     """
     providers = {
         "yfinance": YFinanceMGDProvider,
-        "hls": HLSMGDProvider,
+        "proprietary": HLSMGDProvider,
     }
     if mode not in providers:
-        raise ValueError(f"Unknown MGD provider mode: {mode!r}. Choose from {list(providers)}")
+        raise ValueError(
+            f"Unknown MGD provider mode: {mode!r}. Choose from {list(providers)}"
+        )
     return providers[mode](**kwargs)  # type: ignore[arg-type]

@@ -1,6 +1,5 @@
 # 🤖 AI + ML NEXT FRONTIER — Automated Alpha Research Pipeline
 ### ISCF & MGD as Test Bench · Generic Framework · Human Oversight Architecture
-#### Shaikat Majumdar · HLS Trading Quantitative Researcher Interview
 
 > **Purpose:** Demonstrate a concrete, production-minded roadmap for compressing
 > the ideation-to-P&L cycle using AI + ML — with ISCF and MGD as the test bench,
@@ -129,7 +128,7 @@ IDEATION-TO-P&L LATENCY: CURRENT vs. AI-ASSISTED
                              │ Production-approved signal
                              ▼
   ┌──── PRODUCTION ───────────────────────────────────────────────────────┐
-  │  C++26 hot-path signal engine (existing HLS infrastructure)            │
+  │  C++26 hot-path signal engine (existing Proprietary Trading Firm infrastructure)            │
   │  4× daily rebalancing with γ-gated position sizing                     │
   │  Continuous IC monitoring → automated retirement trigger               │
   └───────────────────────────────────────────────────────────────────────┘
@@ -841,6 +840,3 @@ SUMMARY: THE AI ALPHA FACTORY IN ONE DIAGRAM
 ```
 
 ---
-
-*Shaikat Majumdar · HLS Trading Interview Preparation · June 2026*
-*AI + ML Next Frontier: Compressing the Ideation-to-P&L Cycle*

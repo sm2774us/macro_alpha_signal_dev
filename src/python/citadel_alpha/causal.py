@@ -1,4 +1,3 @@
-# Copyright 2025 HLS Trading / Citadel Systematic Macro Pod
 # citadel_alpha/causal.py
 # Google Python Style Guide.
 
@@ -49,9 +48,9 @@ class GrangerResult:
 
     f_statistic: float
     p_value: float
-    passes: bool                    # True if p_value < threshold
+    passes: bool  # True if p_value < threshold
     lag_used: int
-    signal_leads_by_periods: int    # Best lag at which signal leads return
+    signal_leads_by_periods: int  # Best lag at which signal leads return
 
 
 @dataclass
@@ -60,7 +59,7 @@ class CMIResult:
 
     cmi_statistic: float
     p_value: float
-    passes: bool                    # True if signal retains alpha after conditioning
+    passes: bool  # True if signal retains alpha after conditioning
     alpha_retained_fraction: float  # Fraction of raw IC retained after conditioning
 
 
@@ -68,11 +67,11 @@ class CMIResult:
 class DoWhyResult:
     """Step 3: DoWhy-style invariant structural test result."""
 
-    placebo_p_value: float          # P(|θ_b| >= |θ_orig|) under placebo
+    placebo_p_value: float  # P(|θ_b| >= |θ_orig|) under placebo
     policy_invariance_p_value: float
-    placebo_passes: bool            # p > 0.05 (original estimator distinct from noise)
-    policy_passes: bool             # Structural coefficient stable across regimes
-    causal_gamma: float             # γ ∈ [0, 1] — causal confidence factor
+    placebo_passes: bool  # p > 0.05 (original estimator distinct from noise)
+    policy_passes: bool  # Structural coefficient stable across regimes
+    causal_gamma: float  # γ ∈ [0, 1] — causal confidence factor
     n_bootstrap_reps: int
     theta_orig: float
     theta_placebo_mean: float
@@ -86,8 +85,8 @@ class CausalStackResult:
     granger: GrangerResult
     cmi: CMIResult
     dowhy: DoWhyResult
-    final_gamma: float              # γ for position sizing
-    recommendation: str             # PASS / BETA_PROXY / REJECT
+    final_gamma: float  # γ for position sizing
+    recommendation: str  # PASS / BETA_PROXY / REJECT
     summary: str
 
 
@@ -156,7 +155,7 @@ def _moving_block_bootstrap(
     samples = []
     for _ in range(n_reps):
         starts = rng.integers(0, max(max_start, 1), size=n_blocks)
-        blocks = [data[s: s + block_size] for s in starts]
+        blocks = [data[s : s + block_size] for s in starts]
         resample = np.concatenate(blocks, axis=0)[:t]
         samples.append(resample)
     return samples
@@ -207,7 +206,7 @@ def granger_causality_varx(
 
         # Restricted model: Y ~ Y_lags [+ Z]
         y_dep = y[lag:]
-        y_lags = np.column_stack([y[lag - k - 1: t - k - 1] for k in range(lag)])
+        y_lags = np.column_stack([y[lag - k - 1 : t - k - 1] for k in range(lag)])
 
         if exogenous is not None:
             z = np.asarray(exogenous, dtype=np.float64)[lag:]
@@ -216,7 +215,7 @@ def granger_causality_varx(
             x_r = np.column_stack([np.ones(n), y_lags])
 
         # Unrestricted model: adds X lags
-        x_lags = np.column_stack([x[lag - k - 1: t - k - 1] for k in range(lag)])
+        x_lags = np.column_stack([x[lag - k - 1 : t - k - 1] for k in range(lag)])
         x_u = np.column_stack([x_r, x_lags])
 
         try:
@@ -308,21 +307,21 @@ def conditional_independence_test(
     partial_corr = float(np.corrcoef(x_res, y_res)[0, 1])
 
     retained = (
-        abs(partial_corr) / max(abs(raw_corr), 1e-8)
-        if abs(raw_corr) > 1e-8
-        else 0.0
+        abs(partial_corr) / max(abs(raw_corr), 1e-8) if abs(raw_corr) > 1e-8 else 0.0
     )
 
     # t-test on partial correlation
     n_eff = t - z.shape[1] - 2
     n_eff = max(n_eff, 2)
-    t_stat = partial_corr * math.sqrt(n_eff) / math.sqrt(
-        max(1.0 - partial_corr ** 2, 1e-12)
+    t_stat = (
+        partial_corr * math.sqrt(n_eff) / math.sqrt(max(1.0 - partial_corr**2, 1e-12))
     )
     p_val = float(2.0 * (1.0 - stats.t.cdf(abs(t_stat), df=n_eff)))
 
     # CMI proxy statistic: Fisher z-transform of partial correlation
-    cmi_stat = 0.5 * math.log((1.0 + abs(partial_corr)) / max(1.0 - abs(partial_corr), 1e-12))
+    cmi_stat = 0.5 * math.log(
+        (1.0 + abs(partial_corr)) / max(1.0 - abs(partial_corr), 1e-12)
+    )
 
     return CMIResult(
         cmi_statistic=cmi_stat,
@@ -415,7 +414,9 @@ def dowhy_refutation(
 
     policy_arr = np.array(policy_thetas)
     delta = float(np.std(policy_arr))  # Expected variance threshold
-    policy_p = float(np.mean(np.abs(policy_arr - theta_r1) >= abs(theta_r2 - theta_r1) + delta))
+    policy_p = float(
+        np.mean(np.abs(policy_arr - theta_r1) >= abs(theta_r2 - theta_r1) + delta)
+    )
 
     placebo_passes = placebo_p < C.CAUSAL_PLACEBO_PVALUE_FLOOR
     policy_passes = policy_p > C.CAUSAL_PLACEBO_PVALUE_FLOOR
@@ -489,17 +490,23 @@ def run_causal_stack(
         rec = "REJECT"
     else:
         cmi = conditional_independence_test(
-            signal, returns,
+            signal,
+            returns,
             confounders if confounders is not None else np.zeros((len(signal), 1)),
         )
         if not cmi.passes:
-            dowhy = DoWhyResult(0.0, 0.0, False, False, C.CAUSAL_GAMMA_MEDIUM, 0, 0.0, 0.0)
+            dowhy = DoWhyResult(
+                0.0, 0.0, False, False, C.CAUSAL_GAMMA_MEDIUM, 0, 0.0, 0.0
+            )
             gamma = C.CAUSAL_GAMMA_MEDIUM
             rec = "BETA_PROXY"
         else:
             dowhy = dowhy_refutation(
-                signal, returns, confounders=confounders,
-                n_bootstrap=n_bootstrap, rng_seed=rng_seed,
+                signal,
+                returns,
+                confounders=confounders,
+                n_bootstrap=n_bootstrap,
+                rng_seed=rng_seed,
             )
             gamma = dowhy.causal_gamma
             if not dowhy.placebo_passes:

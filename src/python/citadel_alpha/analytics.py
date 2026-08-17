@@ -1,4 +1,3 @@
-# Copyright 2025 Citadel Systematic Macro Pod
 # citadel_alpha/analytics.py
 # Google Python Style Guide.
 
@@ -32,14 +31,15 @@ FloatArray = NDArray[np.float64]
 # Orthogonality check
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class OrthogonalityReport:
     """Summary of signal orthogonality diagnostics."""
 
-    r2_matrix: FloatArray          # (N_signals x N_signals) R^2 pairwise
-    max_r2: float                  # Maximum off-diagonal R^2 (should be < 0.15)
-    vif: FloatArray                # Variance Inflation Factor per new signal
-    is_orthogonal: bool            # True if max_r2 < 0.15 and all VIF < 5
+    r2_matrix: FloatArray  # (N_signals x N_signals) R^2 pairwise
+    max_r2: float  # Maximum off-diagonal R^2 (should be < 0.15)
+    vif: FloatArray  # Variance Inflation Factor per new signal
+    is_orthogonal: bool  # True if max_r2 < 0.15 and all VIF < 5
 
 
 def compute_orthogonality(
@@ -67,7 +67,7 @@ def compute_orthogonality(
                 r2_matrix[i, j] = 1.0
             else:
                 rho, _ = spearmanr(signal_matrix[:, i], signal_matrix[:, j])
-                r2_matrix[i, j] = float(rho ** 2) if np.isfinite(rho) else 0.0
+                r2_matrix[i, j] = float(rho**2) if np.isfinite(rho) else 0.0
 
     off_diag = r2_matrix.copy()
     np.fill_diagonal(off_diag, 0.0)
@@ -107,15 +107,16 @@ def compute_orthogonality(
 # FLOAM — Fundamental Law of Active Management
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class FloamResult:
     """FLOAM-derived IR estimate with breadth correction."""
 
-    ic: float          # Mean IC across signals and time
-    icir: float        # IC / std(IC)
-    breadth: float     # Effective breadth (adjusted for correlation)
+    ic: float  # Mean IC across signals and time
+    icir: float  # IC / std(IC)
+    breadth: float  # Effective breadth (adjusted for correlation)
     ir_predicted: float  # IC * sqrt(N_eff)
-    ir_realised: float   # Realised Sharpe ratio
+    ir_realised: float  # Realised Sharpe ratio
 
 
 def compute_floam(
@@ -162,14 +163,15 @@ def compute_floam(
 # HMM regime classifier (2-state Gaussian EM)
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class RegimeState:
     """2-state HMM output."""
 
-    regimes: FloatArray          # (T,) state sequence: 0=risk-off, 1=risk-on
-    probabilities: FloatArray    # (T, 2) state probabilities
-    means: FloatArray            # (2,) emission means
-    stds: FloatArray             # (2,) emission stds
+    regimes: FloatArray  # (T,) state sequence: 0=risk-off, 1=risk-on
+    probabilities: FloatArray  # (T, 2) state probabilities
+    means: FloatArray  # (2,) emission means
+    stds: FloatArray  # (2,) emission stds
     transition_matrix: FloatArray  # (2, 2) transition probabilities
 
 
@@ -190,6 +192,7 @@ def fit_hmm_regimes(
     """
     try:
         from hmmlearn.hmm import GaussianHMM  # type: ignore[import]
+
         model = GaussianHMM(
             n_components=2, covariance_type="full", n_iter=n_iter, tol=tol
         )
@@ -241,6 +244,7 @@ def fit_hmm_regimes(
 # CPCV cross-validation (Combinatorial Purged CV)
 # ---------------------------------------------------------------------------
 
+
 def cpcv_ic_scores(
     signal_panel: FloatArray,
     returns_panel: FloatArray,
@@ -267,8 +271,9 @@ def cpcv_ic_scores(
 
     t = signal_panel.shape[0]
     split_size = t // n_splits
-    split_bounds = [(i * split_size, min((i + 1) * split_size, t))
-                    for i in range(n_splits)]
+    split_bounds = [
+        (i * split_size, min((i + 1) * split_size, t)) for i in range(n_splits)
+    ]
 
     oos_ics: list[float] = []
     for test_groups in combinations(range(n_splits), n_test_groups):
@@ -283,7 +288,8 @@ def cpcv_ic_scores(
         # Apply embargo: remove train samples within embargo_days of test.
         test_set = set(test_indices)
         clean_train = [
-            i for i in train_indices
+            i
+            for i in train_indices
             if not any(abs(i - j) <= embargo_days for j in test_set)
         ]
         if len(clean_train) < 20 or len(test_indices) < 4:

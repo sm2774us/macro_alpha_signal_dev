@@ -5,11 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "hls-alpha"
 version = "2.0.0"
-description = "HLS Trading — ISCF & MGD Systematic Macro Alpha Engine"
+description = "ISCF & MGD Systematic Macro Alpha Engine"
 readme = "README.md"
 license = { text = "Apache-2.0" }
 requires-python = ">=3.13"
-authors = [{ name = "HLS Trading Quant Research", email = "quant@hls-trading.com" }]
+authors = [{ name = "Macro Quant Research", email = "sm2774us@gmail.com" }]
 keywords = ["systematic", "macro", "alpha", "iscf", "mgd", "causal", "quant"]
 classifiers = [
   "Programming Language :: Python :: 3.13",

@@ -1,4 +1,3 @@
-// Copyright 2025 Citadel Systematic Macro Pod
 // alpha_engine.cpp — C++26 hot-path implementation.
 // Google C++ Style Guide. Data-oriented design (SoA). Cache-friendly.
 
@@ -368,7 +367,7 @@ SignalResult CentralBankPolicySurpriseMomentum::Compute(
 
 }  // namespace citadel::alpha
 // ============================================================================
-// HLS Branch — ISCF & MGD implementations
+// Proprietary Trading Firm — Branch — ISCF & MGD implementations
 // ============================================================================
 
 namespace citadel::alpha {

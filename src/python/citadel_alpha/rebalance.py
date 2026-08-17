@@ -1,19 +1,15 @@
-# Copyright 2025 HLS Trading
 # citadel_alpha/rebalance.py — Intraday rebalancing engine.
 # Google Python Style Guide.
 
 """4x-daily intraday rebalancing logic for ISCF + MGD signals.
 
-At HLS Trading, strategies rebalance ~4x daily across FX, commodities,
+At Proprietary Trading Firm, strategies rebalance ~4x daily across FX, commodities,
 futures, and rates at a mid-to-high frequency. This module computes:
   1. Target weights from current signal scores (γ-scaled)
   2. Required trades (Δweight) given current holdings
   3. Rebalancing cost estimate (TCA: bid-ask + market impact)
   4. Go/No-Go decision per session (London/NY/Asia)
 
-References:
-    CAUSAL_STACK_EXPLAINED.md — §Layer 3 intraday structural constraints
-    HLS_SIX_MONTH_PLAN.md — Month 4 TCA section
 """
 
 from __future__ import annotations
@@ -33,7 +29,8 @@ FloatArray = NDArray[np.float64]
 
 
 class Session(Enum):
-    """HLS 4x daily trading sessions."""
+    """Proprietary Trading Firm — 4x daily trading sessions."""
+
     ASIA = "Asia"
     LONDON = "London"
     NY_OPEN = "NY_Open"
@@ -46,14 +43,14 @@ class RebalanceDecision:
 
     session: Session
     signal_name: str
-    current_weights: FloatArray   # Current portfolio weights (N,)
-    target_weights: FloatArray    # Signal-implied target weights (N,)
-    delta_weights: FloatArray     # Required trades Δw (N,)
-    turnover: float               # |Δw|.sum() / 2
-    estimated_tc_bps: float       # Estimated transaction cost in bps
-    causal_gamma: float           # γ from causal validation
-    go_decision: bool             # True = execute rebalance
-    reason: str                   # Explanation string
+    current_weights: FloatArray  # Current portfolio weights (N,)
+    target_weights: FloatArray  # Signal-implied target weights (N,)
+    delta_weights: FloatArray  # Required trades Δw (N,)
+    turnover: float  # |Δw|.sum() / 2
+    estimated_tc_bps: float  # Estimated transaction cost in bps
+    causal_gamma: float  # γ from causal validation
+    go_decision: bool  # True = execute rebalance
+    reason: str  # Explanation string
 
 
 def _hrp_weights(scores: FloatArray, n: int) -> FloatArray:
@@ -128,11 +125,15 @@ def compute_rebalance(
         reason = f"Turnover={turnover:.2%} > 50% — split across 2 sessions"
     elif tc_bps > 0.5 * expected_alpha_bps:
         go = False
-        reason = f"TC={tc_bps:.1f}bps > 50% of expected alpha={expected_alpha_bps:.1f}bps"
+        reason = (
+            f"TC={tc_bps:.1f}bps > 50% of expected alpha={expected_alpha_bps:.1f}bps"
+        )
     else:
         go = True
-        reason = (f"Session={session.value} γ={causal_gamma:.2f} "
-                  f"turnover={turnover:.2%} TC={tc_bps:.1f}bps ✓")
+        reason = (
+            f"Session={session.value} γ={causal_gamma:.2f} "
+            f"turnover={turnover:.2%} TC={tc_bps:.1f}bps ✓"
+        )
 
     return RebalanceDecision(
         session=session,

@@ -1,8 +1,7 @@
-# Copyright 2025 HLS Trading
-# citadel_alpha/signals.py — HLS Alpha Engine signal utilities.
+# citadel_alpha/signals.py — Proprietary Trading Firm — Alpha Engine signal utilities.
 # Google Python Style Guide.
 
-"""Signal utilities and base classes for HLS alpha engine.
+"""Signal utilities and base classes for Proprietary Trading Firm — alpha engine.
 
 Exports used by signals_hls.py (ISCF, MGD) and the causal framework.
 The legacy signals have been removed;
@@ -26,6 +25,7 @@ FloatArray = NDArray[np.float64]
 
 try:
     from citadel_alpha import _citadel_alpha_cpp as _cpp  # type: ignore[import]
+
     _CPP_AVAILABLE = True
     logger.info("C++ alpha engine loaded.")
 except ImportError:
@@ -89,7 +89,7 @@ def rolling_icir(ic_series: FloatArray, window: int = 60) -> FloatArray:
     t = len(ic)
     result = np.full(t, np.nan)
     for i in range(window - 1, t):
-        chunk = ic[i - window + 1: i + 1]
+        chunk = ic[i - window + 1 : i + 1]
         mu = float(np.mean(chunk))
         sigma = float(np.std(chunk, ddof=1))
         result[i] = mu / max(sigma, 1e-8)
@@ -108,6 +108,7 @@ def vix_regime_scale(vix_level: float) -> float:
 # ---------------------------------------------------------------------------
 # Signal compute functions (legacy 5-signal suite)
 # ---------------------------------------------------------------------------
+
 
 def _validate_min_n(arr: FloatArray, name: str = "array", min_n: int = 4) -> None:
     if len(arr) < min_n:
@@ -136,12 +137,16 @@ def compute_gcsd(
 
     if use_cpp and _CPP_AVAILABLE:
         try:
-            result = _cpp.GlobalYieldCurveSlopeDivergence.compute(ytm_10y, ytm_2y, next_ret)
+            result = _cpp.GlobalYieldCurveSlopeDivergence.compute(
+                ytm_10y, ytm_2y, next_ret
+            )
             raw = np.asarray(result.raw_score)
             z = np.asarray(result.z_score)
             rank = np.asarray(result.rank_score)
             scale = vix_regime_scale(vix_level)
-            return SignalResult("GCSD", raw * scale, z, rank, float(result.ic), float(result.icir))
+            return SignalResult(
+                "GCSD", raw * scale, z, rank, float(result.ic), float(result.icir)
+            )
         except Exception:
             pass
 
@@ -174,9 +179,17 @@ def compute_rvis(
 
     if use_cpp and _CPP_AVAILABLE:
         try:
-            result = _cpp.RealisedImpliedVolSpread.compute(iv_current, rv_current, vrp_rolling_std, next_ret)
-            return SignalResult("RVIS", np.asarray(result.raw_score), np.asarray(result.z_score),
-                                np.asarray(result.rank_score), float(result.ic), float(result.icir))
+            result = _cpp.RealisedImpliedVolSpread.compute(
+                iv_current, rv_current, vrp_rolling_std, next_ret
+            )
+            return SignalResult(
+                "RVIS",
+                np.asarray(result.raw_score),
+                np.asarray(result.z_score),
+                np.asarray(result.rank_score),
+                float(result.ic),
+                float(result.icir),
+            )
         except Exception:
             pass
 
@@ -251,7 +264,9 @@ def compute_cbpsm(
     regime_wt = np.clip(np.asarray(regime_wt, dtype=np.float64), 0.5, 1.0)
     next_ret = np.asarray(next_ret, dtype=np.float64)
     _validate_min_n(ois_1y, "ois_1y")
-    _validate_same_size(ois_1y, policy_rate, ois_delta, rolling_std, regime_wt, next_ret)
+    _validate_same_size(
+        ois_1y, policy_rate, ois_delta, rolling_std, regime_wt, next_ret
+    )
 
     raw = (ois_delta / np.maximum(rolling_std, 1e-8)) * regime_wt
     z = _cross_sectional_zscore(raw)
