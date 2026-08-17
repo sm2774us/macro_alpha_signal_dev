@@ -1,4 +1,3 @@
-# Copyright 2025 Citadel Systematic Macro Pod
 # tests/python/test_python_lib.py
 # Google Python Style Guide. Pytest.
 
@@ -25,10 +24,10 @@ from citadel_alpha import portfolio as port_mod
 from citadel_alpha import analytics as ana_mod
 from citadel_alpha import data as data_mod
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="module")
 def panel():
@@ -62,6 +61,7 @@ def spot(panel):
 # ---------------------------------------------------------------------------
 # Data generation tests
 # ---------------------------------------------------------------------------
+
 
 class TestDataGeneration:
     """Tests for synthetic data generation."""
@@ -99,16 +99,30 @@ class TestDataGeneration:
 # Signal 1 — GCSD
 # ---------------------------------------------------------------------------
 
+
 class TestGCSD:
     """Tests for Global Yield Curve Slope Divergence signal."""
 
     def test_vix_crisis_reduces_score(self, spot):
         """Crisis VIX regime should reduce signal magnitude."""
         res_calm = sig_mod.compute_gcsd(
-            spot["ytm_10y"], spot["ytm_2y"], spot["next_ret"], vix_level=12.0, use_cpp=False)
+            spot["ytm_10y"],
+            spot["ytm_2y"],
+            spot["next_ret"],
+            vix_level=12.0,
+            use_cpp=False,
+        )
         res_crisis = sig_mod.compute_gcsd(
-            spot["ytm_10y"], spot["ytm_2y"], spot["next_ret"], vix_level=45.0, use_cpp=False)
-        assert np.abs(res_crisis.raw_score).max() < np.abs(res_calm.raw_score).max() + 1e-10
+            spot["ytm_10y"],
+            spot["ytm_2y"],
+            spot["next_ret"],
+            vix_level=45.0,
+            use_cpp=False,
+        )
+        assert (
+            np.abs(res_crisis.raw_score).max()
+            < np.abs(res_calm.raw_score).max() + 1e-10
+        )
 
     def test_returns_signal_result(self, spot):
         res = sig_mod.compute_gcsd(spot["ytm_10y"], spot["ytm_2y"], spot["next_ret"])
@@ -157,9 +171,11 @@ class TestGCSD:
         if not sig_mod._CPP_AVAILABLE:
             pytest.skip("C++ not available")
         py = sig_mod.compute_gcsd(
-            spot["ytm_10y"], spot["ytm_2y"], spot["next_ret"], use_cpp=False)
+            spot["ytm_10y"], spot["ytm_2y"], spot["next_ret"], use_cpp=False
+        )
         cpp = sig_mod.compute_gcsd(
-            spot["ytm_10y"], spot["ytm_2y"], spot["next_ret"], use_cpp=True)
+            spot["ytm_10y"], spot["ytm_2y"], spot["next_ret"], use_cpp=True
+        )
         assert_allclose(py.raw_score, cpp.raw_score, rtol=1e-3, atol=1e-6)
 
 
@@ -167,9 +183,12 @@ class TestGCSD:
 # Signal 2 — RVIS
 # ---------------------------------------------------------------------------
 
+
 class TestRVIS:
     def test_basic(self, spot):
-        res = sig_mod.compute_rvis(spot["iv"], spot["rv"], spot["vrp_std"], spot["next_ret"])
+        res = sig_mod.compute_rvis(
+            spot["iv"], spot["rv"], spot["vrp_std"], spot["next_ret"]
+        )
         assert res.signal_name == "RVIS"
         assert res.raw_score.shape == (spot["n"],)
         assert -1.0 <= res.ic <= 1.0
@@ -187,7 +206,8 @@ class TestRVIS:
 
     def test_no_cpp(self, spot):
         res = sig_mod.compute_rvis(
-            spot["iv"], spot["rv"], spot["vrp_std"], spot["next_ret"], use_cpp=False)
+            spot["iv"], spot["rv"], spot["vrp_std"], spot["next_ret"], use_cpp=False
+        )
         assert res.signal_name == "RVIS"
 
 
@@ -195,36 +215,50 @@ class TestRVIS:
 # Signal 3 — MSDI
 # ---------------------------------------------------------------------------
 
+
 class TestMSDI:
     def test_basic(self, spot):
         res = sig_mod.compute_msdi(
-            spot["surprises"], spot["ema_prev"],
-            spot["surprise_std"], spot["next_ret"])
+            spot["surprises"], spot["ema_prev"], spot["surprise_std"], spot["next_ret"]
+        )
         assert res.signal_name == "MSDI"
         assert np.all(np.isfinite(res.raw_score))
 
     def test_ema_smoothing(self, spot):
         """EMA output should be smoother than raw surprises."""
         res_narrow = sig_mod.compute_msdi(
-            spot["surprises"], spot["ema_prev"],
-            spot["surprise_std"], spot["next_ret"], ema_window=5)
+            spot["surprises"],
+            spot["ema_prev"],
+            spot["surprise_std"],
+            spot["next_ret"],
+            ema_window=5,
+        )
         res_wide = sig_mod.compute_msdi(
-            spot["surprises"], spot["ema_prev"],
-            spot["surprise_std"], spot["next_ret"], ema_window=30)
+            spot["surprises"],
+            spot["ema_prev"],
+            spot["surprise_std"],
+            spot["next_ret"],
+            ema_window=30,
+        )
         # Both should produce valid results.
         assert np.all(np.isfinite(res_narrow.raw_score))
         assert np.all(np.isfinite(res_wide.raw_score))
 
     def test_no_cpp(self, spot):
         res = sig_mod.compute_msdi(
-            spot["surprises"], spot["ema_prev"],
-            spot["surprise_std"], spot["next_ret"], use_cpp=False)
+            spot["surprises"],
+            spot["ema_prev"],
+            spot["surprise_std"],
+            spot["next_ret"],
+            use_cpp=False,
+        )
         assert res.signal_name == "MSDI"
 
 
 # ---------------------------------------------------------------------------
 # Signal 4 — CLSD
 # ---------------------------------------------------------------------------
+
 
 class TestCLSD:
     def test_basic(self, spot):
@@ -235,8 +269,20 @@ class TestCLSD:
     def test_high_spread_negative_signal(self):
         """Highest-spread asset should have the most negative raw_score."""
         rng = default_rng(3)
-        bid_ask = np.array([0.0001, 0.0002, 0.0003, 0.0100,
-                            0.0002, 0.0001, 0.0001, 0.0002, 0.0001, 0.0001])
+        bid_ask = np.array(
+            [
+                0.0001,
+                0.0002,
+                0.0003,
+                0.0100,
+                0.0002,
+                0.0001,
+                0.0001,
+                0.0002,
+                0.0001,
+                0.0001,
+            ]
+        )
         ret = rng.normal(0, 0.01, 10)
         res = sig_mod.compute_clsd(bid_ask, ret, use_cpp=False)
         # The highest spread (index 3) should give the lowest (most negative) raw score.
@@ -251,11 +297,17 @@ class TestCLSD:
 # Signal 5 — CBPSM
 # ---------------------------------------------------------------------------
 
+
 class TestCBPSM:
     def test_basic(self, spot):
         res = sig_mod.compute_cbpsm(
-            spot["ois_1y"], spot["policy_rate"], spot["ois_delta"],
-            spot["ois_std"], spot["regime_wt"], spot["next_ret"])
+            spot["ois_1y"],
+            spot["policy_rate"],
+            spot["ois_delta"],
+            spot["ois_std"],
+            spot["regime_wt"],
+            spot["next_ret"],
+        )
         assert res.signal_name == "CBPSM"
         assert np.all(np.isfinite(res.raw_score))
 
@@ -264,24 +316,43 @@ class TestCBPSM:
         regime_on = np.ones(10)
         regime_off = np.full(10, 0.5)
         res_on = sig_mod.compute_cbpsm(
-            spot["ois_1y"], spot["policy_rate"], spot["ois_delta"],
-            spot["ois_std"], regime_on, spot["next_ret"], use_cpp=False)
+            spot["ois_1y"],
+            spot["policy_rate"],
+            spot["ois_delta"],
+            spot["ois_std"],
+            regime_on,
+            spot["next_ret"],
+            use_cpp=False,
+        )
         res_off = sig_mod.compute_cbpsm(
-            spot["ois_1y"], spot["policy_rate"], spot["ois_delta"],
-            spot["ois_std"], regime_off, spot["next_ret"], use_cpp=False)
+            spot["ois_1y"],
+            spot["policy_rate"],
+            spot["ois_delta"],
+            spot["ois_std"],
+            regime_off,
+            spot["next_ret"],
+            use_cpp=False,
+        )
         # |raw_on| >= |raw_off| element-wise.
         assert np.all(np.abs(res_on.raw_score) >= np.abs(res_off.raw_score) - 1e-10)
 
     def test_no_cpp(self, spot):
         res = sig_mod.compute_cbpsm(
-            spot["ois_1y"], spot["policy_rate"], spot["ois_delta"],
-            spot["ois_std"], spot["regime_wt"], spot["next_ret"], use_cpp=False)
+            spot["ois_1y"],
+            spot["policy_rate"],
+            spot["ois_delta"],
+            spot["ois_std"],
+            spot["regime_wt"],
+            spot["next_ret"],
+            use_cpp=False,
+        )
         assert res.signal_name == "CBPSM"
 
 
 # ---------------------------------------------------------------------------
 # Portfolio tests
 # ---------------------------------------------------------------------------
+
 
 class TestPortfolio:
     """Tests for portfolio construction module."""
@@ -326,6 +397,7 @@ class TestPortfolio:
 # ---------------------------------------------------------------------------
 # Analytics tests
 # ---------------------------------------------------------------------------
+
 
 class TestAnalytics:
     """Tests for analytics module."""
@@ -378,23 +450,27 @@ class TestAnalytics:
 # Edge case tests
 # ---------------------------------------------------------------------------
 
+
 class TestFalsification:
     """Tests for falsification framework."""
 
     def test_bonferroni(self):
         from citadel_alpha import falsification as fal
+
         p = np.array([0.01, 0.05, 0.10])
         adj = fal.bonferroni_correction(p)
         assert_allclose(adj, p * 3)
 
     def test_bh_rejects_small_pvalue(self):
         from citadel_alpha import falsification as fal
+
         p = np.array([0.001, 0.5, 0.8, 0.9, 0.95])
         mask = fal.benjamini_hochberg(p)
         assert mask[0]  # Smallest p-value should be rejected.
 
     def test_dsr_valid_range(self):
         from citadel_alpha import falsification as fal
+
         rng = np.random.default_rng(1)
         pnl = rng.normal(0.001, 0.01, 252)
         sr = float(np.mean(pnl) * 252 / (np.std(pnl) * np.sqrt(252)))
@@ -403,12 +479,14 @@ class TestFalsification:
 
     def test_scan_smooth_manifold(self):
         from citadel_alpha import falsification as fal
+
         surface = np.linspace(1.0, 1.5, 20)  # Smooth gradient.
         norm, is_smooth = fal.scan_parameter_manifold(surface, epsilon_threshold=0.5)
         assert is_smooth
 
     def test_scan_jagged_manifold(self):
         from citadel_alpha import falsification as fal
+
         rng = np.random.default_rng(2)
         surface = rng.uniform(0, 3, 20)  # Jagged / noisy surface.
         norm, _ = fal.scan_parameter_manifold(surface, epsilon_threshold=0.01)
@@ -416,19 +494,23 @@ class TestFalsification:
 
     def test_vix_regime_ic(self):
         from citadel_alpha import falsification as fal
+
         rng = np.random.default_rng(3)
         ic = rng.normal(0.05, 0.02, 500)
-        vix = np.concatenate([
-            np.full(200, 12.0),
-            np.full(150, 25.0),
-            np.full(150, 35.0),
-        ])
+        vix = np.concatenate(
+            [
+                np.full(200, 12.0),
+                np.full(150, 25.0),
+                np.full(150, 35.0),
+            ]
+        )
         report = fal.vix_regime_ic(ic, vix)
         assert 0.0 <= report.stability_score <= 1.0
         assert np.isfinite(report.risk_on_ic)
 
     def test_vix_regime_scale_values(self):
         from citadel_alpha.signals import vix_regime_scale
+
         assert vix_regime_scale(12.0) == 1.0
         assert vix_regime_scale(25.0) == 0.60
         assert vix_regime_scale(40.0) == 0.25
@@ -477,8 +559,12 @@ class TestEdgeCases:
         regime_above = np.full(n, 2.0)  # Exceeds max.
         regime_below = np.full(n, 0.1)  # Below min.
 
-        res_a = sig_mod.compute_cbpsm(ois_1y, pol, delta, std, regime_above, ret, use_cpp=False)
-        res_b = sig_mod.compute_cbpsm(ois_1y, pol, delta, std, regime_below, ret, use_cpp=False)
+        res_a = sig_mod.compute_cbpsm(
+            ois_1y, pol, delta, std, regime_above, ret, use_cpp=False
+        )
+        res_b = sig_mod.compute_cbpsm(
+            ois_1y, pol, delta, std, regime_below, ret, use_cpp=False
+        )
 
         # Both should produce finite results (clamped inside compute).
         assert np.all(np.isfinite(res_a.raw_score))

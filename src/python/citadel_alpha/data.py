@@ -1,4 +1,3 @@
-# Copyright 2025 Citadel Systematic Macro Pod
 # citadel_alpha/data.py
 # Google Python Style Guide.
 
@@ -23,12 +22,20 @@ FloatArray = NDArray[np.float64]
 
 # Asset universe: 10 G10 countries / asset blocs.
 DEFAULT_ASSETS = [
-    "USD", "EUR", "GBP", "JPY", "CHF",
-    "AUD", "CAD", "NOK", "SEK", "NZD",
+    "USD",
+    "EUR",
+    "GBP",
+    "JPY",
+    "CHF",
+    "AUD",
+    "CAD",
+    "NOK",
+    "SEK",
+    "NZD",
 ]
 
-DEFAULT_T = 2000   # ~8 years of daily data
-DEFAULT_N = 10     # 10 assets
+DEFAULT_T = 2000  # ~8 years of daily data
+DEFAULT_N = 10  # 10 assets
 
 
 @dataclass
@@ -36,39 +43,39 @@ class MacroPanelData:
     """Synthetic macro panel dataset for signal backtesting."""
 
     assets: list[str]
-    dates: FloatArray            # (T,) integer day index
+    dates: FloatArray  # (T,) integer day index
 
     # Yield data.
-    ytm_10y: FloatArray          # (T, N) 10-year yields
-    ytm_2y: FloatArray           # (T, N) 2-year yields
+    ytm_10y: FloatArray  # (T, N) 10-year yields
+    ytm_2y: FloatArray  # (T, N) 2-year yields
 
     # Volatility data.
-    implied_vol: FloatArray      # (T, N) implied vol (annualised)
-    realised_vol: FloatArray     # (T, N) realised vol (annualised)
+    implied_vol: FloatArray  # (T, N) implied vol (annualised)
+    realised_vol: FloatArray  # (T, N) realised vol (annualised)
     vrp_rolling_std: FloatArray  # (T, N) rolling std of VRP
 
     # Economic surprise data.
-    surprises: FloatArray        # (T, N) normalised econ surprises
-    ema_state: FloatArray        # (T, N) EMA state (updated per period)
+    surprises: FloatArray  # (T, N) normalised econ surprises
+    ema_state: FloatArray  # (T, N) EMA state (updated per period)
     surprise_rolling_std: FloatArray  # (T, N)
 
     # Liquidity data.
-    bid_ask_spread: FloatArray   # (T, N) relative spread
+    bid_ask_spread: FloatArray  # (T, N) relative spread
 
     # Central bank data.
-    ois_1y: FloatArray           # (T, N) 1-year OIS
-    policy_rate: FloatArray      # (T, N) official policy rate
-    ois_delta: FloatArray        # (T, N) weekly OIS change
+    ois_1y: FloatArray  # (T, N) 1-year OIS
+    policy_rate: FloatArray  # (T, N) official policy rate
+    ois_delta: FloatArray  # (T, N) weekly OIS change
     ois_rolling_std: FloatArray  # (T, N)
-    regime_wt: FloatArray        # (T, N) HMM regime weight
+    regime_wt: FloatArray  # (T, N) HMM regime weight
 
     # Returns (1-period forward, target for IC).
     forward_returns: FloatArray  # (T, N)
 
     # Benchmark factor returns (trend/momentum/carry) for orthogonality check.
-    trend_returns: FloatArray    # (T,) aggregate trend factor
-    momentum_returns: FloatArray # (T,) aggregate momentum factor
-    carry_returns: FloatArray    # (T,) aggregate carry factor
+    trend_returns: FloatArray  # (T,) aggregate trend factor
+    momentum_returns: FloatArray  # (T,) aggregate momentum factor
+    carry_returns: FloatArray  # (T,) aggregate carry factor
 
 
 def generate_macro_panel(
@@ -117,10 +124,9 @@ def generate_macro_panel(
     # ── Yield data ───────────────────────────────────────────────────────
     # Realistic G10 yield levels with regime-dependent slopes.
     base_level = 0.02 + rng.uniform(0.0, 0.04, n)  # 2–6% yield.
-    slope_signal = (
-        rng.uniform(0.001, 0.02, (t, n)) * risk_on[:, None]
-        - rng.uniform(0.002, 0.008, (t, n)) * (~risk_on[:, None])
-    )
+    slope_signal = rng.uniform(0.001, 0.02, (t, n)) * risk_on[:, None] - rng.uniform(
+        0.002, 0.008, (t, n)
+    ) * (~risk_on[:, None])
     ytm_10y = np.clip(base_level + slope_signal + 0.005, 0.001, 0.12)
     ytm_2y = np.clip(base_level + rng.uniform(-0.005, 0.005, (t, n)), 0.001, 0.10)
 
@@ -135,12 +141,18 @@ def generate_macro_panel(
     vrp = np.where(risk_on[:, None], 0.03, 0.01) + rng.normal(0, 0.015, (t, n))
     implied_vol = np.clip(realised_vol + vrp, 0.05, 0.80)
     vrp_rolling_std = np.clip(
-        np.array([
-            np.std(vrp[max(0, i - 60):i + 1], axis=0, ddof=1)
-            if i >= 10 else np.full(n, 0.015)
-            for i in range(t)
-        ]),
-        1e-4, 0.20,
+        np.array(
+            [
+                (
+                    np.std(vrp[max(0, i - 60) : i + 1], axis=0, ddof=1)
+                    if i >= 10
+                    else np.full(n, 0.015)
+                )
+                for i in range(t)
+            ]
+        ),
+        1e-4,
+        0.20,
     )
 
     # ── Economic surprise data ───────────────────────────────────────────
@@ -154,19 +166,23 @@ def generate_macro_panel(
     for i in range(1, t):
         ema_state[i] = ema_alpha * surprises[i] + (1 - ema_alpha) * ema_state[i - 1]
     surprise_rolling_std = np.clip(
-        np.array([
-            np.std(surprises[max(0, i - 120):i + 1], axis=0, ddof=1)
-            if i >= 10 else np.ones(n)
-            for i in range(t)
-        ]),
-        1e-3, 5.0,
+        np.array(
+            [
+                (
+                    np.std(surprises[max(0, i - 120) : i + 1], axis=0, ddof=1)
+                    if i >= 10
+                    else np.ones(n)
+                )
+                for i in range(t)
+            ]
+        ),
+        1e-3,
+        5.0,
     )
 
     # ── Liquidity data ───────────────────────────────────────────────────
     bid_ask_base = np.where(risk_on[:, None], 0.0003, 0.0012)
-    bid_ask_spread = np.clip(
-        bid_ask_base + rng.exponential(0.0002, (t, n)), 1e-5, 0.01
-    )
+    bid_ask_spread = np.clip(bid_ask_base + rng.exponential(0.0002, (t, n)), 1e-5, 0.01)
 
     # ── Central bank data ────────────────────────────────────────────────
     policy_base = 0.015 + rng.uniform(0.0, 0.03, n)
@@ -175,12 +191,18 @@ def generate_macro_panel(
     ois_1y = np.clip(policy_rate + ois_spread, 0.0, 0.15)
     ois_delta = np.diff(ois_1y, axis=0, prepend=ois_1y[:1])
     ois_rolling_std = np.clip(
-        np.array([
-            np.std(ois_delta[max(0, i - 60):i + 1], axis=0, ddof=1)
-            if i >= 10 else np.full(n, 0.002)
-            for i in range(t)
-        ]),
-        1e-5, 0.05,
+        np.array(
+            [
+                (
+                    np.std(ois_delta[max(0, i - 60) : i + 1], axis=0, ddof=1)
+                    if i >= 10
+                    else np.full(n, 0.002)
+                )
+                for i in range(t)
+            ]
+        ),
+        1e-5,
+        0.05,
     )
     # Regime weight: 1.0 risk-on, 0.5 risk-off.
     regime_wt = np.where(risk_on[:, None], 1.0, 0.5) * np.ones((t, n))

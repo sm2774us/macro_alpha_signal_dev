@@ -1,4 +1,3 @@
-// Copyright 2025 Citadel Systematic Macro Pod
 // tests/cpp/test_cpp_lib.cpp
 // Google C++ Style Guide. Google Test.
 
