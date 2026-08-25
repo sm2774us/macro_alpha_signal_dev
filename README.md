@@ -680,11 +680,11 @@ The `signal-health-monitor` job: (1) builds the C++26 nanobind extension, (2) in
 Full academic-style dissertation with first-principles mathematical derivations, causal framework, regime analysis, and six-month deployment plan:
 
 - **Markdown:** [`dissertation/README.md`](dissertation/README.md)
-- **LaTeX:** [`dissertation/hls_alpha_dissertation.tex`](dissertation/hls_alpha_dissertation.tex)
-- **PDF:** [`dissertation/hls_alpha_dissertation.pdf`](dissertation/hls_alpha_dissertation.pdf)
+- **LaTeX:** [`dissertation/ISCF_and_MGD_Macro_Alpha_Signals.tex`](dissertation/ISCF_and_MGD_Macro_Alpha_Signals.tex)
+- **PDF:** [`dissertation/ISCF_and_MGD_Macro_Alpha_Signals.pdf`](dissertation/ISCF_and_MGD_Macro_Alpha_Signals.pdf)
 
 ```bash
-cd dissertation && pdflatex hls_alpha_dissertation.tex && pdflatex hls_alpha_dissertation.tex
+cd dissertation && pdflatex ISCF_and_MGD_Macro_Alpha_Signals.tex && pdflatex ISCF_and_MGD_Macro_Alpha_Signals.tex
 ```
 
 ---
